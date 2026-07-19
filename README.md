@@ -55,6 +55,15 @@ decision to the `simplicio-loop` Completion Oracle.
 It is deliberately **not** a second orchestrator. The Loop remains the only owner of Hub slots,
 queues, scheduling, isolation, processes, retries, recovery, delivery, and terminal completion.
 
+### Project metadata
+
+**Description:** `simplicio-loop-quality` — agent-driven, fail-closed quality gates for any
+repository via `simplicio-loop`.
+
+**Topics:** `simplicio-loop-quality` · `simplicio-loop` · `testing` · `quality-assurance` ·
+`quality-gates` · `test-automation` · `ai-agents` · `evidence-driven` · `fail-closed` ·
+`software-verification`
+
 > **Current status:** architectural bootstrap with a fail-closed gate. Production execution remains
 > blocked until the required upstream Loop extension hooks are available.
 
