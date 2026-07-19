@@ -1,7 +1,7 @@
-# 🛡️ simplicio-loop-quality — Verified quality for any repository
+# 🛡️ Simplicio-loop-quality — Verified quality for any repository
 
 <p align="center">
-  <img src="docs/assets/quality-loop-hero.webp" alt="Luminous verification loop representing simplicio-loop-quality" width="920" />
+  <img src="docs/assets/quality-loop-hero.webp" alt="Luminous verification loop representing Simplicio-loop-quality" width="920" />
 </p>
 
 <p align="center">
@@ -48,7 +48,7 @@
 
 ## 🚀 TL;DR
 
-`simplicio-loop-quality` is the quality extension for the Simplicio product line. It decides which
+**Simplicio-loop-quality** is the quality extension for the Simplicio product line. It decides which
 quality checks apply, supplies declarative testing agents, validates evidence, and hands the final
 decision to the `simplicio-loop` Completion Oracle.
 
@@ -57,7 +57,7 @@ queues, scheduling, isolation, processes, retries, recovery, delivery, and termi
 
 ### Project metadata
 
-**Description:** `simplicio-loop-quality` — agent-driven, fail-closed quality gates for any
+**Description:** **Simplicio-loop-quality** — agent-driven, fail-closed quality gates for any
 repository via `simplicio-loop`.
 
 **Topics:** `simplicio-loop-quality` · `simplicio-loop` · `testing` · `quality-assurance` ·
@@ -71,7 +71,7 @@ repository via `simplicio-loop`.
 
 ```mermaid
 flowchart LR
-  REPO["Any repository"] --> EXT["simplicio-loop-quality"]
+  REPO["Any repository"] --> EXT["Simplicio-loop-quality"]
   EXT --> POLICY["Policy + applicability matrix"]
   POLICY --> LOOP["simplicio-loop\n(single authority)"]
   LOOP --> HUB["Loop Hub slots\nand isolation"]
