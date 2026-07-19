@@ -1,0 +1,67 @@
+{
+  "schema": "simplicio.loop-extension/v1",
+  "extension_id": "simplicio_loop_quality",
+  "name": "simplicio-loop-quality",
+  "version": "0.1.0",
+  "domain": "quality",
+  "requires_core": {"min_version": "3.38.0", "max_version": "3.99.99"},
+  "capabilities": {
+    "requires": ["simplicio.stage-agent-binding/v1", "simplicio.hub-ipc/v1", "simplicio.process-spec/v1", "simplicio.evidence-receipt/v1", "simplicio.completion-oracle-matrix/v1"],
+    "provides": ["quality.full-test-layer", "quality.specialized-agents", "quality.evidence.v1", "quality.fail-closed-gate"]
+  },
+  "context_schemas": [
+    {"schema_id": "simplicio.quality-plan/v1", "version": "1.0.0", "migrations": []}
+  ],
+  "stage_overlays": [
+    {"op": "refine", "hook": "planning", "order": 100, "gates": {"quality_plan": "fail_closed"}},
+    {"op": "refine", "hook": "validating", "order": 200, "gates": {"full_quality_matrix": "fail_closed"}},
+    {"op": "refine", "hook": "watching", "order": 300, "gates": {"independent_quality_reverification": "fail_closed"}},
+    {"op": "refine", "hook": "done", "order": 400, "gates": {"quality_evidence_freshness": "fail_closed"}}
+  ],
+  "role_bindings": [
+    {"role_id": "quality_planner_agent", "specializes": "intake_planner", "required_capabilities": ["quality.plan", "evidence"]},
+    {"role_id": "test_infrastructure_agent", "specializes": "intake_planner", "required_capabilities": ["quality.toolchain-discovery", "evidence"]},
+    {"role_id": "static_quality_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.static", "evidence"]},
+    {"role_id": "test_authoring_agent", "specializes": "implementation_agent", "required_capabilities": ["quality.test-authoring", "fencing", "receipts"]},
+    {"role_id": "unit_component_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.unit", "quality.component", "evidence"]},
+    {"role_id": "integration_contract_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.integration", "quality.contract", "evidence"]},
+    {"role_id": "system_e2e_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.system", "quality.e2e", "evidence"]},
+    {"role_id": "accessibility_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.accessibility", "evidence"]},
+    {"role_id": "regression_real_code_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.regression", "quality.install-smoke", "evidence"]},
+    {"role_id": "implementation_completeness_agent", "specializes": "blast_radius_reviewer", "required_capabilities": ["quality.implementation-completeness", "evidence"]},
+    {"role_id": "test_selection_validation_agent", "specializes": "blast_radius_reviewer", "required_capabilities": ["quality.test-selection", "evidence"]},
+    {"role_id": "property_fuzz_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.property", "quality.fuzz", "evidence"]},
+    {"role_id": "mutation_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.mutation", "evidence"]},
+    {"role_id": "invariant_review_agent", "specializes": "security_correctness_reviewer", "required_capabilities": ["quality.invariants", "evidence"]},
+    {"role_id": "independent_code_review_agent", "specializes": "maintainability_reviewer", "required_capabilities": ["quality.code-review", "evidence"]},
+    {"role_id": "concurrency_reliability_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.concurrency", "quality.fault-injection", "evidence"]},
+    {"role_id": "security_agent", "specializes": "security_correctness_reviewer", "required_capabilities": ["quality.security", "quality.supply-chain", "evidence"]},
+    {"role_id": "performance_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.performance", "quality.load", "evidence"]},
+    {"role_id": "compatibility_install_agent", "specializes": "blast_radius_reviewer", "required_capabilities": ["quality.compatibility", "quality.installation", "evidence"]},
+    {"role_id": "operational_readiness_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.operational-readiness", "evidence"]},
+    {"role_id": "privacy_compliance_agent", "specializes": "security_correctness_reviewer", "required_capabilities": ["quality.privacy", "evidence"]},
+    {"role_id": "documentation_quality_agent", "specializes": "runtime_reproduction_verifier", "required_capabilities": ["quality.documentation", "evidence"]},
+    {"role_id": "evidence_audit_agent", "specializes": "review_panel", "required_capabilities": ["quality.evidence-audit", "evidence"]},
+    {"role_id": "quality_gate_agent", "specializes": "review_panel", "required_capabilities": ["quality.gate", "evidence"]}
+  ],
+  "gates": [
+    {"gate_id": "quality_plan", "severity": "fail_closed"},
+    {"gate_id": "full_quality_matrix", "severity": "fail_closed"},
+    {"gate_id": "independent_quality_reverification", "severity": "fail_closed"},
+    {"gate_id": "quality_evidence_freshness", "severity": "fail_closed"}
+  ],
+  "effect_handlers": [
+    {"effect_id": "publish_quality_receipt", "idempotent": true, "requires_fence_token": true, "requires_receipt": true, "compensation": "invalidate_quality_receipt"}
+  ],
+  "resource_classes": [
+    {"class_id": "test", "concurrency_cap": 8, "budget": {"owner": "simplicio-loop-hub", "local_enforcement": false}}
+  ],
+  "receipt_schemas": [
+    {"schema_id": "simplicio.quality-evidence/v1", "version": "1.0.0"},
+    {"schema_id": "simplicio.quality-gate-verdict/v1", "version": "1.0.0"}
+  ],
+  "feature_flags": [
+    {"flag_id": "quality_required", "default": true},
+    {"flag_id": "allow_local_execution_fallback", "default": false}
+  ]
+}

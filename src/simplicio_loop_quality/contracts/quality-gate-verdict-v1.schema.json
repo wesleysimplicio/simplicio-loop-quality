@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "simplicio.quality-gate-verdict/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "ready",
+    "reason_code",
+    "source_sha",
+    "policy_hash",
+    "findings"
+  ],
+  "properties": {
+    "schema": {"const": "simplicio.quality-gate-verdict/v1"},
+    "status": {"enum": ["PASS", "FAIL", "BLOCKED"]},
+    "ready": {"type": "boolean"},
+    "reason_code": {"type": "string", "minLength": 1},
+    "source_sha": {"type": "string"},
+    "policy_hash": {"type": "string"},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reason_code", "detail", "lane"],
+        "properties": {
+          "reason_code": {"type": "string", "minLength": 1},
+          "detail": {"type": "string", "minLength": 1},
+          "lane": {"type": "string"}
+        }
+      }
+    }
+  }
+}

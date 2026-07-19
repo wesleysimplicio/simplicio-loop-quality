@@ -1,0 +1,35 @@
+name: Quality gap
+description: Report a missing or incorrect quality guarantee
+title: "[Quality Gap] "
+labels: []
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the observable gap and affected project.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide exact commands, versions and source SHA. Remove secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected invariant
+      description: State what the fail-closed quality layer should guarantee.
+    validations:
+      required: true
+  - type: checkboxes
+    id: evidence
+    attributes:
+      label: Evidence integrity
+      options:
+        - label: Metrics not observed are reported as null, not zero or estimates.
+          required: true
+        - label: Logs and artifacts contain no secrets or private data.
+          required: true

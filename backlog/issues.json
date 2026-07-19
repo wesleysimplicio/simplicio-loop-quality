@@ -1,0 +1,2204 @@
+{
+  "schema": "simplicio.quality-backlog/v1",
+  "repository": "wesleysimplicio/simplicio-loop-quality",
+  "generated_from": "audited simplicio-loop main @ 8155d2203f0018b00d842ddea5910271bd85d3c4",
+  "common_definition_of_done": [
+    "Implementation is complete with no placeholders, TODO-only paths or fabricated outputs.",
+    "Applicable unit, integration, system, regression and real-fixture tests pass.",
+    "Changed-code branch coverage is at least 90%; critical gates and invariants are 100%.",
+    "No skipped, xfailed, flaky, unexecuted, stale or unverifiable result is treated as PASS.",
+    "Every command is submitted through the simplicio-loop Hub; no local scheduler, queue or process pool is introduced.",
+    "Evidence records run/task/attempt/source SHA, policy hash, tool versions, command, duration, environment, seed and artifact hashes.",
+    "Unavailable metrics are null plus a machine-readable reason, never zero or an estimate.",
+    "Documentation and changelog are updated and the final commit is green."
+  ],
+  "milestones": [
+    {
+      "id": "M0",
+      "title": "Contracts",
+      "issues": "QLT-001..QLT-007"
+    },
+    {
+      "id": "M1",
+      "title": "Centralized Loop integration",
+      "issues": "QLT-008..QLT-012"
+    },
+    {
+      "id": "M2",
+      "title": "Quality MVP",
+      "issues": "QLT-013..QLT-031"
+    },
+    {
+      "id": "M3",
+      "title": "Full assurance and universal support",
+      "issues": "QLT-032..QLT-055"
+    },
+    {
+      "id": "M4",
+      "title": "Ecosystem GA",
+      "issues": "QLT-056..QLT-062"
+    },
+    {
+      "id": "M5",
+      "title": "Universal quality completion",
+      "issues": "QLT-063..QLT-073"
+    }
+  ],
+  "issues": [
+    {
+      "id": "QLT-001",
+      "title": "Define and enforce the quality-extension architecture boundary",
+      "epic": "Foundation",
+      "priority": "P0",
+      "depends_on": [],
+      "blocked_by": [],
+      "problem": "An extension can accidentally duplicate Loop orchestration and split authority.",
+      "steps": [
+        "Write the core-versus-extension ADR and ownership matrix.",
+        "Define the only allowed Loop execution port.",
+        "Prohibit local scheduler, queue, worker pool, worktree, lease, retry and terminal-state modules.",
+        "Add import and filesystem architecture checks.",
+        "Document blocked behavior when the Loop or Hub is unavailable."
+      ],
+      "acceptance": [
+        "Every quality execution crosses the Loop port.",
+        "No duplicate orchestration component exists.",
+        "The Completion Oracle remains the sole terminal authority."
+      ],
+      "tests": [
+        "Architecture test for forbidden modules/imports.",
+        "Trace proving a quality command is delegated to the Loop."
+      ]
+    },
+    {
+      "id": "QLT-002",
+      "title": "Bootstrap the installable package, CLI and repository governance",
+      "epic": "Foundation",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-001"
+      ],
+      "blocked_by": [],
+      "problem": "The project needs a clean, reproducible base before agents can be implemented.",
+      "steps": [
+        "Create src-layout Python package and console scripts.",
+        "Add license, README, AGENTS contract, contribution and security policy.",
+        "Add build, lint, type, unit and clean-install checks.",
+        "Ship the loop-extension manifest and packaged contracts.",
+        "Create PR/issue templates and changelog policy."
+      ],
+      "acceptance": [
+        "Source install, wheel install, --help and --version work in empty environments.",
+        "Package contains contracts and no repository-only imports.",
+        "Initial CI/local gate is green."
+      ],
+      "tests": [
+        "Wheel/sdist content inspection.",
+        "Clean-venv CLI smoke on supported Python versions."
+      ]
+    },
+    {
+      "id": "QLT-003",
+      "title": "Implement strict, versioned quality policy as code",
+      "epic": "Foundation",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-001",
+        "QLT-002"
+      ],
+      "blocked_by": [],
+      "problem": "Manual checklists cannot enforce required lanes, thresholds or waivers.",
+      "steps": [
+        "Define quality-policy/v1 schema.",
+        "Model risk levels, mandatory lanes, coverage and performance budgets.",
+        "Implement global/project/CLI precedence without silent fields.",
+        "Hash the resolved policy and bind it to every receipt.",
+        "Fail closed on invalid, ambiguous or unknown configuration."
+      ],
+      "acceptance": [
+        "Resolution is deterministic and auditable.",
+        "Critical risk can only add requirements, never remove them.",
+        "Invalid configuration blocks before work submission."
+      ],
+      "tests": [
+        "Golden precedence fixtures.",
+        "Parser property/fuzz tests.",
+        "Unknown-field and boundary-value corpus."
+      ]
+    },
+    {
+      "id": "QLT-004",
+      "title": "Define canonical quality plan, evidence, finding and verdict schemas",
+      "epic": "Foundation",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-003"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/618"
+      ],
+      "problem": "Agents need closed, versioned contracts that distinguish missing, zero, null, skipped and N/A.",
+      "steps": [
+        "Model quality plan, stage request/result, evidence item, finding, waiver and gate verdict.",
+        "Include run/task/attempt/source/diff/policy/toolchain identity.",
+        "Define metric value, unit, samples and unavailable reason.",
+        "Close every schema against unknown fields.",
+        "Add migrations and compatibility fixtures."
+      ],
+      "acceptance": [
+        "Schemas validate independently of Python code.",
+        "Unavailable metrics are null plus reason, never zero.",
+        "All status and binding semantics are explicit."
+      ],
+      "tests": [
+        "Valid/invalid golden corpus.",
+        "Round-trip and migration tests.",
+        "Schema mutation and fuzz tests."
+      ]
+    },
+    {
+      "id": "QLT-005",
+      "title": "Create quality-agent and test-tool adapter contracts",
+      "epic": "Foundation",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-004"
+      ],
+      "blocked_by": [],
+      "problem": "Languages and tools must plug in without changing the core or spawning processes directly.",
+      "steps": [
+        "Define agent and adapter protocols.",
+        "Declare capabilities, supported versions, resource requests and output formats.",
+        "Require commands to be ProcessSpec-like data, never executed by adapters.",
+        "Define failure taxonomy and cancellation semantics.",
+        "Publish conformance fixtures for valid, incompatible and hostile plugins."
+      ],
+      "acceptance": [
+        "Incompatible plugins fail before execution.",
+        "Plugins cannot obtain scheduling or terminal authority.",
+        "Capability discovery is deterministic."
+      ],
+      "tests": [
+        "Fake sync/async/crashing plugins.",
+        "Malicious plugin and unknown capability tests."
+      ]
+    },
+    {
+      "id": "QLT-006",
+      "title": "Build the QualityAgent SDK and conformance suite",
+      "epic": "Foundation",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-004",
+        "QLT-005"
+      ],
+      "blocked_by": [],
+      "problem": "All specialized agents need one auditable lifecycle and evidence API.",
+      "steps": [
+        "Implement agent context, plan, stage request, result and evidence emitter.",
+        "Propagate cancellation/deadline without owning retries.",
+        "Enforce author/auditor independence metadata.",
+        "Provide deterministic seeds and idempotency keys.",
+        "Run a shared conformance suite against every agent."
+      ],
+      "acceptance": [
+        "Same inputs and seed produce the same plan.",
+        "Agents never schedule, close issues or merge.",
+        "Every result is commit- and policy-bound."
+      ],
+      "tests": [
+        "Conformance tests for pass/fail/block/cancel/crash.",
+        "Identity and self-approval negative tests."
+      ]
+    },
+    {
+      "id": "QLT-007",
+      "title": "Implement Loop capability and version negotiation",
+      "epic": "Loop integration",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-004"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/613",
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/614",
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/621"
+      ],
+      "problem": "The extension must not assume core APIs or silently downgrade.",
+      "steps": [
+        "Probe core version and extension contract.",
+        "Probe stage agents, Hub IPC, ProcessSpec, ledger, quality hook and oracle capabilities.",
+        "Maintain N-1/N/current compatibility fixtures.",
+        "Emit actionable missing-capability reason codes.",
+        "Forbid local fallback in strict mode."
+      ],
+      "acceptance": [
+        "Unsupported core blocks before mutation.",
+        "Doctor reports exact versions and capabilities.",
+        "Future unknown versions do not silently pass."
+      ],
+      "tests": [
+        "Supported, N-1, future and partially-capable Loop fixtures."
+      ]
+    },
+    {
+      "id": "QLT-008",
+      "title": "Implement the centralized Hub test-process adapter",
+      "epic": "Loop integration",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-005",
+        "QLT-007"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/615"
+      ],
+      "problem": "Test tools must not create decentralized subprocesses.",
+      "steps": [
+        "Translate tool requests into Loop ProcessSpec data.",
+        "Submit, poll, collect and cancel through the Hub client.",
+        "Propagate priority=test, quotas, cwd, environment allowlist and output limits.",
+        "Normalize ProcessResult without losing raw evidence.",
+        "Fail closed on Hub loss or incompatible result."
+      ],
+      "acceptance": [
+        "No runtime adapter imports subprocess.",
+        "Every command has Loop process/run/stage IDs.",
+        "Timeout and cancellation produce terminal receipts."
+      ],
+      "tests": [
+        "Fake and real Hub integration.",
+        "Timeout, crash, truncation, reconnect and cancellation."
+      ]
+    },
+    {
+      "id": "QLT-009",
+      "title": "Compile quality plans into Loop stage graphs",
+      "epic": "Loop integration",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/614",
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/616"
+      ],
+      "problem": "Agent dependencies and waves must be owned by the Loop.",
+      "steps": [
+        "Map lanes to role bindings and stage definitions.",
+        "Compile a deterministic DAG with resource classes.",
+        "Validate cycles, duplicate IDs and missing capabilities.",
+        "Submit the graph through the public extension registry.",
+        "Persist graph hash and policy hash."
+      ],
+      "acceptance": [
+        "The extension only supplies a graph; Loop plans waves.",
+        "Equivalent plans produce byte-identical graph hashes.",
+        "Invalid graphs block without partial execution."
+      ],
+      "tests": [
+        "Golden graphs for fan-in/fan-out.",
+        "Cycle and capability failure fixtures."
+      ]
+    },
+    {
+      "id": "QLT-010",
+      "title": "Integrate the Loop stage journal and idempotent quality events",
+      "epic": "Loop integration",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-009"
+      ],
+      "blocked_by": [],
+      "problem": "Reconnect, replay or duplicate delivery must not rerun tests or corrupt evidence.",
+      "steps": [
+        "Use the Loop StageCoordinatorJournal as the only event journal.",
+        "Create deterministic correlation and idempotency keys.",
+        "Handle duplicate, late and out-of-order events.",
+        "Recover accepted stage receipts after restart.",
+        "Record invalidation events without deleting history."
+      ],
+      "acceptance": [
+        "Replay is side-effect free.",
+        "Accepted evidence survives restart when still fresh.",
+        "Corruption blocks with a reason code."
+      ],
+      "tests": [
+        "Crash/restart, duplicate and reordered event tests.",
+        "Journal tamper fixture."
+      ]
+    },
+    {
+      "id": "QLT-011",
+      "title": "Map quality failures, deadlines, cancellation and retryability",
+      "epic": "Loop integration",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-008",
+        "QLT-010"
+      ],
+      "blocked_by": [],
+      "problem": "Quality must classify failures without implementing its own retry engine.",
+      "steps": [
+        "Define permanent/transient/cancelled/resource/policy failure codes.",
+        "Propagate deadlines and cancellation tokens.",
+        "Return retry hints, never execute retries locally.",
+        "Map exhausted attempts to FAIL or BLOCKED.",
+        "Preserve first and final failure evidence."
+      ],
+      "acceptance": [
+        "Loop remains the only retry authority.",
+        "Cancellation reaches all submitted work.",
+        "Retry exhaustion never becomes partial PASS."
+      ],
+      "tests": [
+        "Timeout, rate-limit, OOM, cancellation and retry-exhaustion fixtures."
+      ]
+    },
+    {
+      "id": "QLT-012",
+      "title": "Wire the required quality lifecycle hook in fail-closed mode",
+      "epic": "Loop integration",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-009",
+        "QLT-010",
+        "QLT-011"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/612",
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/613",
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/619"
+      ],
+      "problem": "A run can otherwise proceed from implementation to verify without full quality.",
+      "steps": [
+        "Register the provider with the Loop hook.",
+        "Run quality after implementation and before watcher/delivery/oracle.",
+        "Persist hook input and provider output atomically without deciding the verdict.",
+        "Support required, plan-only and explicitly non-terminal diagnostic modes.",
+        "Block on missing provider, partial write, crash or invalid result."
+      ],
+      "acceptance": [
+        "Required quality cannot be bypassed.",
+        "No extension-local done state exists.",
+        "Lifecycle plumbing cannot manufacture PASS; audit and gate remain downstream."
+      ],
+      "tests": [
+        "End-to-end PASS/FAIL/BLOCKED runs.",
+        "Missing hook, crash and partial-file regression tests."
+      ]
+    },
+    {
+      "id": "QLT-013",
+      "title": "Build repository and changed-surface impact analysis",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-005"
+      ],
+      "blocked_by": [],
+      "problem": "The suite must adapt to any repository without guessing affected surfaces.",
+      "steps": [
+        "Detect languages, build systems, public APIs and existing test infrastructure.",
+        "Resolve changed files, renames, deletes and generated files.",
+        "Use project-map.json when available and record its freshness.",
+        "Compute dependencies, reverse dependents and risk surfaces.",
+        "Represent unknown facts explicitly."
+      ],
+      "acceptance": [
+        "Produces a confidence-scored impact map.",
+        "Mapper absence degrades visibly, never fabricates context.",
+        "Polyglot and monorepo boundaries are preserved."
+      ],
+      "tests": [
+        "Polyglot monorepo, rename/delete and stale-map fixtures."
+      ]
+    },
+    {
+      "id": "QLT-014",
+      "title": "Classify risk and select mandatory quality suites monotonically",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-003",
+        "QLT-013"
+      ],
+      "blocked_by": [],
+      "problem": "Required lanes must reflect real risk without allowing critical changes to weaken gates.",
+      "steps": [
+        "Score API, security, data, concurrency, performance, packaging and blast radius.",
+        "Map risk classes to mandatory lanes and budgets.",
+        "Require a waiver for any exclusion.",
+        "Make risk monotonic when impact increases.",
+        "Persist explanations and inputs."
+      ],
+      "acceptance": [
+        "Same impact yields same classification.",
+        "Critical risk includes every lower-risk requirement.",
+        "Overrides cannot silently lower risk."
+      ],
+      "tests": [
+        "Golden risk table.",
+        "Property tests for monotonicity.",
+        "Adversarial override tests."
+      ]
+    },
+    {
+      "id": "QLT-015",
+      "title": "Map acceptance criteria to tests and evidence",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-004"
+      ],
+      "blocked_by": [],
+      "problem": "A green suite is insufficient when acceptance criteria remain unproven.",
+      "steps": [
+        "Assign stable IDs to acceptance criteria.",
+        "Link each criterion to planned tests and evidence types.",
+        "Detect orphan criteria, ambiguous duplicates and irrelevant tests.",
+        "Persist AC→test→evidence traceability.",
+        "Fail the gate when required criteria lack accepted evidence."
+      ],
+      "acceptance": [
+        "Every required AC has at least one independent proof.",
+        "Traceability survives retries and renames.",
+        "Ambiguity blocks instead of guessing."
+      ],
+      "tests": [
+        "Markdown/JSON issue fixtures.",
+        "Duplicate, missing and contradictory AC cases."
+      ]
+    },
+    {
+      "id": "QLT-016",
+      "title": "Implement the stateless QualityPlannerAgent",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-009",
+        "QLT-014",
+        "QLT-015"
+      ],
+      "blocked_by": [],
+      "problem": "A specialized agent must build the quality plan without becoming a scheduler.",
+      "steps": [
+        "Consume policy, impact and AC traceability.",
+        "Select agents, lanes, dependencies and resources.",
+        "Explain inclusion, N/A candidates and blockers.",
+        "Emit one deterministic quality-plan receipt.",
+        "Submit the graph to Loop and stop planning."
+      ],
+      "acceptance": [
+        "Agent contains no queue or scheduling logic.",
+        "Low/high/critical plans are reproducible.",
+        "Every lane has rationale and evidence target."
+      ],
+      "tests": [
+        "Golden plans and repeatability tests.",
+        "Architecture import checks."
+      ]
+    },
+    {
+      "id": "QLT-017",
+      "title": "Implement content-addressed evidence and reproducibility manifests",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-004",
+        "QLT-008"
+      ],
+      "blocked_by": [],
+      "problem": "PASS must point to verifiable artifacts, commands and environments.",
+      "steps": [
+        "Define evidence items and SHA-256 storage.",
+        "Record source, policy, tool versions, command spec, environment and seed.",
+        "Redact secrets before persistence.",
+        "Deduplicate identical artifacts without losing provenance.",
+        "Define retention and missing-artifact behavior."
+      ],
+      "acceptance": [
+        "Tampering invalidates the receipt.",
+        "Every PASS resolves to present hashed evidence.",
+        "Secret material is not persisted."
+      ],
+      "tests": [
+        "Tamper, dedup, redaction, missing artifact and replay tests."
+      ]
+    },
+    {
+      "id": "QLT-018",
+      "title": "Govern applicability, NOT_APPLICABLE and waivers",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-003",
+        "QLT-017"
+      ],
+      "blocked_by": [],
+      "problem": "Skip, unavailable and structurally irrelevant must not be conflated.",
+      "steps": [
+        "Define reason codes and allowed scopes.",
+        "Require justification, independent approver and expiration.",
+        "Bind waiver to policy, source and lane.",
+        "Reject autoapproval and broad wildcard waivers.",
+        "Expose all waivers in terminal reports."
+      ],
+      "acceptance": [
+        "Skipped/timeout/unavailable never equal N/A.",
+        "Expired or stale waivers block.",
+        "Producer cannot approve its own waiver."
+      ],
+      "tests": [
+        "Valid, expired, self-approved, stale and overbroad waiver cases."
+      ]
+    },
+    {
+      "id": "QLT-019",
+      "title": "Implement the independent EvidenceAuditAgent",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-017",
+        "QLT-018"
+      ],
+      "blocked_by": [],
+      "problem": "Producer claims need independent re-execution and provenance checks before any gate can pass.",
+      "steps": [
+        "Enforce identity separation between author, executor and auditor.",
+        "Rehash artifacts and revalidate run, task, attempt, fence, source and policy bindings.",
+        "Re-run selected deterministic commands through Hub.",
+        "Cross-check thresholds, raw results and environment fingerprints.",
+        "Emit a content-addressed audit receipt and blocking contradictions."
+      ],
+      "acceptance": [
+        "Producer cannot audit its own evidence.",
+        "Forged, stale, cross-run or cross-commit evidence is rejected.",
+        "The audit receipt is required input to the deterministic gate."
+      ],
+      "tests": [
+        "Forged, missing, stale, cross-run and cross-attempt fixtures.",
+        "Independent rerun mismatch, tamper and identity-separation tests."
+      ]
+    },
+    {
+      "id": "QLT-020",
+      "title": "Implement the deterministic QualityGateAgent",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-014",
+        "QLT-015",
+        "QLT-017",
+        "QLT-019"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/612",
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/618"
+      ],
+      "problem": "The terminal quality decision must be recomputed only after independent audit.",
+      "steps": [
+        "Load resolved policy, fresh receipts and the independent audit receipt.",
+        "Validate lane states, thresholds, bindings, findings and waivers.",
+        "Reject contradictions, missing evidence, stale SHA and failed audit.",
+        "Emit one deterministic and explainable gate verdict.",
+        "Project only the accepted verdict to the Loop quality matrix."
+      ],
+      "acceptance": [
+        "Same audited input produces the same verdict.",
+        "Any missing mandatory proof or audit receipt fails closed.",
+        "Gate agent cannot close, merge, execute tests or self-audit."
+      ],
+      "tests": [
+        "Decision-table and missing-audit tests.",
+        "Mutation tests of every failure branch.",
+        "Oracle projection integration."
+      ]
+    },
+    {
+      "id": "QLT-021",
+      "title": "Implement findings, remediation requests and re-verification",
+      "epic": "Planning and governance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-016",
+        "QLT-020"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/617"
+      ],
+      "problem": "A failed test must return to Loop recovery without a quality-local fix loop.",
+      "steps": [
+        "Normalize and fingerprint findings.",
+        "Set severity, owner stage and affected evidence.",
+        "Submit a correction request to Loop recovery.",
+        "Invalidate dependent receipts.",
+        "Re-run the failed lane and required regression lanes after correction."
+      ],
+      "acceptance": [
+        "Finding closes only after fresh proof.",
+        "Duplicates collapse without losing occurrences.",
+        "Budget exhaustion terminates BLOCKED."
+      ],
+      "tests": [
+        "Corrected, recurring, duplicate, nonreproducible and exhausted-budget cases."
+      ]
+    },
+    {
+      "id": "QLT-022",
+      "title": "Specify hermetic test environments and cleanup",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-017"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/620"
+      ],
+      "problem": "Agents need reproducible services, fixtures and cleanup without provisioning locally.",
+      "steps": [
+        "Model services, ports, filesystem, network, credentials, seeds and cleanup.",
+        "Submit provisioning requirements to Loop.",
+        "Verify isolation and resource ownership.",
+        "Capture environment fingerprints.",
+        "Block when cleanup cannot be verified."
+      ],
+      "acceptance": [
+        "Runs are reproducible and isolated.",
+        "No leaked process, file, connection or service remains.",
+        "Offline restrictions are honored."
+      ],
+      "tests": [
+        "Real service fixture, cleanup failure and offline execution."
+      ]
+    },
+    {
+      "id": "QLT-023",
+      "title": "Implement StaticCodeQualityAgent",
+      "epic": "Core quality agents",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-017"
+      ],
+      "blocked_by": [],
+      "problem": "Lint, formatting, typing, complexity, duplication and dead code need normalized evidence.",
+      "steps": [
+        "Discover available analyzers.",
+        "Build Hub commands and version pins.",
+        "Normalize findings and SARIF.",
+        "Apply policy thresholds.",
+        "Distinguish tool absence from clean code."
+      ],
+      "acceptance": [
+        "Required analyzer absence blocks or needs waiver.",
+        "Findings map to source and rule IDs.",
+        "No formatter silently mutates product code."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Seeded lint/type/complexity defects and SARIF golden files."
+      ]
+    },
+    {
+      "id": "QLT-024",
+      "title": "Implement UnitTestAgent",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-013",
+        "QLT-017"
+      ],
+      "blocked_by": [],
+      "problem": "Changed logic needs isolated behavioral tests and negative paths.",
+      "steps": [
+        "Discover unit suites and framework.",
+        "Identify changed units and missing tests.",
+        "Submit test-authoring tasks when authorized.",
+        "Execute unit tests through Hub.",
+        "Emit per-test result, duration and evidence."
+      ],
+      "acceptance": [
+        "Missing required unit coverage fails.",
+        "Empty/always-pass/mock-only tests are rejected.",
+        "Negative paths are represented."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Pass/fail/timeout/empty-test fixtures."
+      ]
+    },
+    {
+      "id": "QLT-025",
+      "title": "Implement ComponentTestAgent",
+      "epic": "Core quality agents",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-013",
+        "QLT-017"
+      ],
+      "blocked_by": [],
+      "problem": "Whole modules need boundary validation beyond isolated units.",
+      "steps": [
+        "Define component boundaries from impact map.",
+        "Provision controlled collaborators.",
+        "Execute module-level flows.",
+        "Capture state and cleanup evidence.",
+        "Classify overlap with unit/integration without double counting."
+      ],
+      "acceptance": [
+        "Component tests exercise real module boundaries.",
+        "State leakage blocks.",
+        "Evidence is distinct from unit-only proof."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Filesystem, cache and adapter component fixtures."
+      ]
+    },
+    {
+      "id": "QLT-026",
+      "title": "Implement IntegrationTestAgent",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-017",
+        "QLT-022"
+      ],
+      "blocked_by": [],
+      "problem": "Database, queue, filesystem and API seams must be exercised with real collaborators.",
+      "steps": [
+        "Discover integration dependencies.",
+        "Request real disposable services from Loop.",
+        "Seed deterministic data.",
+        "Execute success and failure paths.",
+        "Verify cleanup and idempotency."
+      ],
+      "acceptance": [
+        "Mock-only seams do not satisfy mandatory integration.",
+        "Unavailable required service blocks.",
+        "Real collaborator versions are recorded."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Database, queue, API and filesystem fixtures."
+      ]
+    },
+    {
+      "id": "QLT-027",
+      "title": "Implement ContractTestAgent",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-017"
+      ],
+      "blocked_by": [],
+      "problem": "APIs, CLIs, schemas and events can break consumers while internal tests stay green.",
+      "steps": [
+        "Discover provider/consumer contracts.",
+        "Version and snapshot public shapes.",
+        "Execute compatibility checks.",
+        "Detect unversioned breaking changes.",
+        "Emit consumer/provider evidence."
+      ],
+      "acceptance": [
+        "Breaking change without approved versioning blocks.",
+        "CLI exit/output and event schemas are covered.",
+        "Backward compatibility policy is explicit."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Compatible and breaking API/CLI/event fixtures."
+      ]
+    },
+    {
+      "id": "QLT-028",
+      "title": "Implement SystemE2EAgent",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-017",
+        "QLT-022"
+      ],
+      "blocked_by": [],
+      "problem": "User-facing behavior must be tested through the actual command/API/UI surface.",
+      "steps": [
+        "Resolve the real entrypoint.",
+        "Provision a clean environment.",
+        "Execute happy, error, timeout, cancel and recovery flows.",
+        "Capture observable output and side effects.",
+        "Tear down and audit resources."
+      ],
+      "acceptance": [
+        "Tests do not call internal functions as a substitute.",
+        "At least one real end-to-end path proves each critical AC.",
+        "Runtime errors and console/log errors block."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Clean-room full-flow fixtures."
+      ]
+    },
+    {
+      "id": "QLT-029",
+      "title": "Implement RegressionTestAgent with fail-before/pass-after proof",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-017"
+      ],
+      "blocked_by": [],
+      "problem": "A fixed bug can return unless its original failure is permanently reproduced.",
+      "steps": [
+        "Extract or author the minimal reproducer.",
+        "Capture failing pre-fix evidence when possible.",
+        "Run the same case against the fixed source.",
+        "Run related existing suites.",
+        "Verify reverting the fix makes the regression fail."
+      ],
+      "acceptance": [
+        "Bug issues require a specific reproducer.",
+        "RED and GREEN are distinct and commit-bound.",
+        "A generic full-suite pass is insufficient."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Seeded bug, revert and stale-RED fixtures."
+      ]
+    },
+    {
+      "id": "QLT-030",
+      "title": "Implement packaged-artifact and real-code smoke testing",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-017",
+        "QLT-022"
+      ],
+      "blocked_by": [],
+      "problem": "Source-checkout tests can hide broken packages, imports and entrypoints.",
+      "steps": [
+        "Build the official artifact once.",
+        "Install it in an empty environment without repository paths.",
+        "Verify version, imports, commands and minimal configuration.",
+        "Exercise upgrade/reinstall/uninstall where supported.",
+        "Record artifact digest and installed file origin."
+      ],
+      "acceptance": [
+        "No source-tree import satisfies real-code proof.",
+        "Exact built artifact is tested.",
+        "Broken entrypoint or metadata blocks."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Wheel/npm/crate/container clean-install fixtures as applicable."
+      ]
+    },
+    {
+      "id": "QLT-031",
+      "title": "Implement line, branch, condition, changed and critical coverage",
+      "epic": "Core quality agents",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-008",
+        "QLT-013",
+        "QLT-014",
+        "QLT-017"
+      ],
+      "blocked_by": [],
+      "problem": "Line coverage alone can hide untested decisions and changed code.",
+      "steps": [
+        "Discover native coverage format.",
+        "Normalize paths across worktrees/containers.",
+        "Collect line, branch/condition and diff coverage.",
+        "Mark critical gates/invariants.",
+        "Compare against policy and previous baseline."
+      ],
+      "acceptance": [
+        "Defaults enforce global >=85, changed >=90 and critical 100.",
+        "Missing coverage is null plus reason and blocks when required.",
+        "Coverage cannot decrease silently."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Multiple report formats, path remap and threshold boundary tests."
+      ]
+    },
+    {
+      "id": "QLT-032",
+      "title": "Implement PropertyFuzzAgent with reproducible minimization",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-024",
+        "QLT-026",
+        "QLT-031"
+      ],
+      "blocked_by": [],
+      "problem": "Example tests miss broad input spaces and malformed data.",
+      "steps": [
+        "Derive explicit properties and generators.",
+        "Set deterministic seeds and budgets.",
+        "Run property and fuzz engines through Hub.",
+        "Persist and minimize failing corpus.",
+        "Promote stable regressions into normal tests."
+      ],
+      "acceptance": [
+        "Every failure is replayable from seed/corpus.",
+        "Timeout is not treated as success.",
+        "Minimized cases retain the failure."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Seeded defect found and minimized."
+      ]
+    },
+    {
+      "id": "QLT-033",
+      "title": "Implement MutationTestAgent and strength thresholds",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-024",
+        "QLT-031"
+      ],
+      "blocked_by": [],
+      "problem": "High coverage can still come from tests that assert nothing useful.",
+      "steps": [
+        "Discover a mutation engine or generic adapter.",
+        "Select changed and critical mutation scope.",
+        "Run mutants through Hub with time budgets.",
+        "Classify killed, survived, timeout and equivalent mutants.",
+        "Enforce mutation-score policy and create findings."
+      ],
+      "acceptance": [
+        "Timeout does not automatically count as killed.",
+        "Surviving critical mutants block.",
+        "Equivalent-mutant waivers need review."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Weak test detected, strengthened and remeasured."
+      ]
+    },
+    {
+      "id": "QLT-034",
+      "title": "Implement InvariantReviewAgent",
+      "epic": "Advanced assurance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-015",
+        "QLT-024",
+        "QLT-026"
+      ],
+      "blocked_by": [],
+      "problem": "Domain and architecture invariants need explicit, executable review.",
+      "steps": [
+        "Extract invariants from ACs, schemas and architecture docs.",
+        "Assign stable invariant IDs.",
+        "Map each invariant to state transitions and tests.",
+        "Execute positive and negative checks.",
+        "Require independent sign-off."
+      ],
+      "acceptance": [
+        "Every critical invariant has executable proof.",
+        "Contradictory invariants block planning.",
+        "Review prose alone is not a PASS."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Intentional invariant violation fixtures."
+      ]
+    },
+    {
+      "id": "QLT-035",
+      "title": "Implement ConcurrencyReliabilityAgent",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-026",
+        "QLT-028",
+        "QLT-031"
+      ],
+      "blocked_by": [],
+      "problem": "Races, deadlocks, starvation, ordering and leaks often evade deterministic suites.",
+      "steps": [
+        "Detect concurrent surfaces.",
+        "Create controlled schedules, seeds and repetitions.",
+        "Test cancellation and contention storms.",
+        "Measure deadlocks, starvation and resource leaks.",
+        "Persist replay data and traces."
+      ],
+      "acceptance": [
+        "Failures are reproducible or honestly marked nondeterministic.",
+        "Budgets and repetitions are recorded.",
+        "No leak or hung process is ignored."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Race, deadlock, ordering and leak fixtures."
+      ]
+    },
+    {
+      "id": "QLT-036",
+      "title": "Implement FaultInjectionRecoveryAgent",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-026",
+        "QLT-028",
+        "QLT-035"
+      ],
+      "blocked_by": [],
+      "problem": "Recovery, retries and idempotency must survive real partial failures.",
+      "steps": [
+        "Define a fault matrix by dependency.",
+        "Inject timeout, network loss, rate limit, process kill, disk full and corrupt response.",
+        "Observe retry, compensation and idempotency.",
+        "Verify no duplicate external effect.",
+        "Capture recovery timeline."
+      ],
+      "acceptance": [
+        "Each critical dependency has failure coverage.",
+        "Partial failure never yields PASS without recovery proof.",
+        "Duplicate effect is a blocking defect."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Fault matrix with success, exhausted and compensation cases."
+      ]
+    },
+    {
+      "id": "QLT-037",
+      "title": "Implement FlakyRepeatabilityAgent and quarantine rules",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-024",
+        "QLT-026",
+        "QLT-028"
+      ],
+      "blocked_by": [],
+      "problem": "Intermittent tests cannot be hidden by retries.",
+      "steps": [
+        "Fingerprint test failures.",
+        "Repeat under controlled seed/environment.",
+        "Estimate instability with raw attempts.",
+        "Separate deterministic failure from flaky behavior.",
+        "Define quarantine that never releases a critical gate."
+      ],
+      "acceptance": [
+        "A retry pass does not erase earlier failure.",
+        "Flaky status remains non-passing.",
+        "History and confidence inputs are auditable."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Known flaky and deterministic fixtures."
+      ]
+    },
+    {
+      "id": "QLT-038",
+      "title": "Implement ApplicationSecurityAgent",
+      "epic": "Advanced assurance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-023",
+        "QLT-026",
+        "QLT-028"
+      ],
+      "blocked_by": [],
+      "problem": "Security-critical paths need SAST, dynamic and abuse-case validation.",
+      "steps": [
+        "Discover SAST/DAST/secrets and language-specific checks.",
+        "Map threat surfaces from impact.",
+        "Test injection, traversal, authn/authz, permissions and unsafe I/O.",
+        "Redact sensitive evidence.",
+        "Normalize severity and blocking policy."
+      ],
+      "acceptance": [
+        "Critical/high findings block by policy.",
+        "Secrets never appear in persisted output.",
+        "Security agent remains independent of author."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Vulnerable corpus and SARIF golden output."
+      ]
+    },
+    {
+      "id": "QLT-039",
+      "title": "Implement SupplyChainSecurityAgent",
+      "epic": "Advanced assurance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-023",
+        "QLT-030"
+      ],
+      "blocked_by": [],
+      "problem": "Dependencies and release artifacts can be vulnerable or untraceable.",
+      "steps": [
+        "Validate lockfiles and registry sources.",
+        "Scan vulnerabilities and licenses.",
+        "Detect dependency confusion/typosquatting risk.",
+        "Generate/verify SBOM, checksum and provenance.",
+        "Bind results to exact artifacts."
+      ],
+      "acceptance": [
+        "Critical dependency or untraceable artifact blocks.",
+        "Present-but-invalid SBOM/provenance fails.",
+        "Allowed license policy is explicit."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Malicious dependency and tampered artifact fixtures."
+      ]
+    },
+    {
+      "id": "QLT-040",
+      "title": "Implement statistically defensible PerformanceBenchmarkAgent",
+      "epic": "Advanced assurance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-008",
+        "QLT-017",
+        "QLT-031"
+      ],
+      "blocked_by": [],
+      "problem": "Performance claims need real baselines and repeatable statistics.",
+      "steps": [
+        "Detect hot paths and native harness.",
+        "Record controlled hardware/software environment.",
+        "Warm up and run at least ten repetitions when reproducible.",
+        "Store raw samples, p50/p95/p99, variance and confidence interval.",
+        "Compare against a commit-bound baseline and budget."
+      ],
+      "acceptance": [
+        "No estimate or unavailable metric is reported as saving.",
+        "Regression verdict follows declared statistical policy.",
+        "Raw samples and baseline are retained."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Stable/noisy/regressed benchmark fixtures."
+      ]
+    },
+    {
+      "id": "QLT-041",
+      "title": "Implement LoadStressSoakAgent",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-028",
+        "QLT-035",
+        "QLT-040"
+      ],
+      "blocked_by": [],
+      "problem": "Load, saturation and long-running leaks require separate evidence.",
+      "steps": [
+        "Define load, spike, stress and soak profiles.",
+        "Request bounded resources from Hub.",
+        "Measure throughput, latency, CPU, RSS, disk, network and handles.",
+        "Find saturation and recovery point.",
+        "Detect long-run resource growth."
+      ],
+      "acceptance": [
+        "Profiles and duration are policy-controlled.",
+        "Machine overload guardrails are enforced by Hub.",
+        "Leak/saturation findings include raw time series."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Load curve, saturation and seeded leak fixtures."
+      ]
+    },
+    {
+      "id": "QLT-042",
+      "title": "Implement CompatibilityMigrationAgent",
+      "epic": "Advanced assurance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-027",
+        "QLT-030"
+      ],
+      "blocked_by": [],
+      "problem": "OS/runtime/version and data migrations can fail outside the developer environment.",
+      "steps": [
+        "Resolve supported compatibility matrix.",
+        "Test N-1/current/next where policy requires.",
+        "Execute install, upgrade, downgrade and rollback.",
+        "Validate schema/data migrations and idempotency.",
+        "Record unsupported cells as explicit policy decisions."
+      ],
+      "acceptance": [
+        "Every supported cell has evidence.",
+        "Failed migration preserves recovery/rollback proof.",
+        "Compatibility is not inferred from compilation."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Version matrix and rollback fixtures."
+      ]
+    },
+    {
+      "id": "QLT-043",
+      "title": "Implement a generic command/container quality profile for any project",
+      "epic": "Universal support",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-005",
+        "QLT-008",
+        "QLT-019"
+      ],
+      "blocked_by": [],
+      "problem": "Unknown toolchains still need full quality without extension code changes.",
+      "steps": [
+        "Define declarative commands, dependencies, result parsers and artifacts.",
+        "Support containerized hermetic execution through Loop.",
+        "Map generic outputs to lanes and evidence.",
+        "Validate paths, env and resource requests.",
+        "Ship an onboarding generator and schema."
+      ],
+      "acceptance": [
+        "An unrecognized project can integrate all gates through configuration.",
+        "Commands still execute only through Hub.",
+        "Unknown result formats block."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Two synthetic unknown toolchains and one container profile."
+      ]
+    },
+    {
+      "id": "QLT-044",
+      "title": "Implement first-party Python quality adapters",
+      "epic": "Universal support",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Python projects need native, async and packaging-aware coverage.",
+      "steps": [
+        "Add pytest/unittest, coverage, Hypothesis/fuzz, mutation, lint/type/security adapters.",
+        "Support sync/async, namespace packages and monorepos.",
+        "Support wheel/sdist clean-install smoke.",
+        "Normalize JUnit, coverage and SARIF.",
+        "Pin and report tool versions."
+      ],
+      "acceptance": [
+        "Representative Python projects exercise every supported lane.",
+        "No hidden dependency on source checkout.",
+        "Missing optional tool is explicit."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Sync, async, CLI, library and monorepo fixtures."
+      ]
+    },
+    {
+      "id": "QLT-045",
+      "title": "Implement first-party Rust quality adapters",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Rust workspaces need features, targets and native quality tools.",
+      "steps": [
+        "Add cargo test/nextest, llvm-cov, clippy, proptest/fuzz, mutation and audit adapters.",
+        "Handle workspaces, features and target triples.",
+        "Test crate packaging and installable binaries.",
+        "Capture sanitizer/Miri evidence when policy requires.",
+        "Normalize cargo outputs."
+      ],
+      "acceptance": [
+        "Workspace and feature matrix is supported.",
+        "Crate artifact smoke is real.",
+        "Unsafe/concurrency checks are representable."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Workspace, feature and binary crate fixtures."
+      ]
+    },
+    {
+      "id": "QLT-046",
+      "title": "Implement first-party JavaScript and TypeScript adapters",
+      "epic": "Universal support",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Node projects vary across ESM/CJS, runners, package managers and monorepos.",
+      "steps": [
+        "Add Jest/Vitest/node:test, Istanbul, fast-check, mutation, lint/type and audit adapters.",
+        "Support npm/pnpm/yarn lockfiles and workspaces.",
+        "Handle ESM/CJS and browser/server splits.",
+        "Test packed tarball install and bin entrypoints.",
+        "Normalize JUnit, LCOV and SARIF."
+      ],
+      "acceptance": [
+        "No package-manager assumption is silent.",
+        "Packed artifact is tested.",
+        "Browser and Node surfaces remain distinct."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "ESM, CJS, frontend, backend and monorepo fixtures."
+      ]
+    },
+    {
+      "id": "QLT-047",
+      "title": "Implement first-party .NET quality adapters",
+      "epic": "Universal support",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": ".NET solutions need multi-project discovery, Coverlet, analyzers and package smoke.",
+      "steps": [
+        "Add dotnet test, TRX, Coverlet, analyzers, FsCheck, mutation and NuGet audit adapters.",
+        "Resolve solution/project/test dependency graph.",
+        "Support async, AOT and target-framework matrices.",
+        "Pack/install NuGet and CLI artifacts.",
+        "Normalize coverage and diagnostics."
+      ],
+      "acceptance": [
+        "Multi-project solutions and TFMs are handled.",
+        "TRX/coverage bindings are exact.",
+        "Published package smoke avoids source references."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Library, web API, worker and multi-TFM fixtures."
+      ]
+    },
+    {
+      "id": "QLT-048",
+      "title": "Implement first-party Go quality adapters",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Go modules need race, fuzz, coverage and binary/package checks.",
+      "steps": [
+        "Add go test, cover, race, fuzz, vet/staticcheck and vulnerability adapters.",
+        "Handle modules, workspaces, build tags and CGO.",
+        "Test built binaries in clean environments.",
+        "Normalize JSON test events and coverage.",
+        "Capture seeds and race reports."
+      ],
+      "acceptance": [
+        "Race/fuzz failures are replayable.",
+        "Build-tag matrix is explicit.",
+        "Module cache does not hide missing dependencies."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Module, workspace, CGO and CLI fixtures."
+      ]
+    },
+    {
+      "id": "QLT-049",
+      "title": "Implement first-party Java and Kotlin adapters",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "JVM builds need Gradle/Maven, test engines, coverage, mutation and packaging support.",
+      "steps": [
+        "Add JUnit/TestNG, JaCoCo, PIT, static/security and property-test adapters.",
+        "Support Maven/Gradle multi-module builds.",
+        "Handle Java/Kotlin and supported JVM matrices.",
+        "Test jar/application artifacts outside checkout.",
+        "Normalize XML reports and diagnostics."
+      ],
+      "acceptance": [
+        "Build-tool choice is detected, not guessed.",
+        "Multi-module coverage is correct.",
+        "Packaged application smoke is real."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Maven, Gradle, Java, Kotlin and multi-module fixtures."
+      ]
+    },
+    {
+      "id": "QLT-050",
+      "title": "Implement first-party native C and C++ adapters",
+      "epic": "Universal support",
+      "priority": "P2",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "C and C++ projects need build-system, sanitizer, fuzz and ABI-aware testing.",
+      "steps": [
+        "Support CMake/CTest, Meson and common native runners.",
+        "Integrate coverage, sanitizers, fuzzing and static analysis.",
+        "Capture compiler/target/architecture identity.",
+        "Test produced libraries/binaries/packages.",
+        "Model platform-specific N/A with approval."
+      ],
+      "acceptance": [
+        "Memory/UB sanitizer failures block.",
+        "Architecture matrix is explicit.",
+        "Built binaries are tested outside build tree."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "CMake/Meson C and C++ library, binary, ABI and sanitizer fixtures."
+      ]
+    },
+    {
+      "id": "QLT-051",
+      "title": "Implement first-party PHP adapters",
+      "epic": "Universal support",
+      "priority": "P2",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "PHP projects need native test, coverage, static and Composer package checks.",
+      "steps": [
+        "Add PHPUnit and Pest adapters.",
+        "Add coverage, static analysis, mutation and dependency security.",
+        "Support Composer lockfiles and common PHP frameworks.",
+        "Test packaged/library/CLI entrypoints.",
+        "Normalize test and coverage reports."
+      ],
+      "acceptance": [
+        "Framework detection is evidence-based.",
+        "Dependency installation is hermetic.",
+        "Package smoke avoids developer-global state."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "PHP library, web, framework and CLI fixtures."
+      ]
+    },
+    {
+      "id": "QLT-052",
+      "title": "Implement AI, LLM and agent-system quality profile",
+      "epic": "Universal support",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-040",
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Nondeterministic agents require evals beyond exact text assertions.",
+      "steps": [
+        "Model task success, tool-use, structured output and safety criteria.",
+        "Add prompt-injection and hallucinated-success adversarial cases.",
+        "Run repeated samples with seeds/model/provider metadata.",
+        "Measure latency, tokens and cost only when directly observed.",
+        "Use statistical thresholds and regression datasets."
+      ],
+      "acceptance": [
+        "No exact-text-only gate for semantic tasks.",
+        "Hallucinated tool success is detected.",
+        "Missing token/cost metrics are null with reason."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Fake providers, tool misuse and adversarial prompt corpus."
+      ]
+    },
+    {
+      "id": "QLT-053",
+      "title": "Implement database, data-pipeline and migration quality profile",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-026",
+        "QLT-036",
+        "QLT-042",
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Data changes need correctness, rollback, volume and consistency assurance.",
+      "steps": [
+        "Model schema, migration and data-quality contracts.",
+        "Test forward/backward migration and idempotency.",
+        "Validate constraints, transactions and partial failure.",
+        "Run representative volume/performance tests.",
+        "Audit backup/restore or compensation path."
+      ],
+      "acceptance": [
+        "No destructive migration passes without rollback evidence.",
+        "Data invariants survive partial failure.",
+        "Volume baseline is measured."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Relational, document and pipeline migration fixtures."
+      ]
+    },
+    {
+      "id": "QLT-054",
+      "title": "Implement web UI and visual-regression quality profile",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-028",
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "UI correctness includes real browser interaction and controlled visual regressions.",
+      "steps": [
+        "Discover routes and supported browsers.",
+        "Execute real browser interactions through Loop-managed tooling.",
+        "Audit console errors, network failures and browser runtime errors.",
+        "Capture screenshots/video and visual diffs.",
+        "Separate approved visual updates from regressions."
+      ],
+      "acceptance": [
+        "Critical flows have browser E2E evidence.",
+        "Console, network and page runtime errors follow policy.",
+        "Visual baseline changes require review."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Responsive interaction, browser-error and seeded visual regression fixtures."
+      ]
+    },
+    {
+      "id": "QLT-055",
+      "title": "Implement container-image and Kubernetes quality profile",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-038",
+        "QLT-039",
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Container images and Kubernetes resources need security, deployability and rollback validation.",
+      "steps": [
+        "Validate Dockerfiles/images, Kubernetes manifests and Helm charts.",
+        "Scan configuration, secrets, vulnerabilities and privileges.",
+        "Run disposable deployment smoke where authorized.",
+        "Verify health, resource limits and rollback.",
+        "Bind evidence to immutable image/plan digests."
+      ],
+      "acceptance": [
+        "No live production mutation occurs in tests.",
+        "Privileged/insecure configs block.",
+        "Rollback and cleanup are proven."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Container-image, Kubernetes and Helm fixture projects."
+      ]
+    },
+    {
+      "id": "QLT-056",
+      "title": "Integrate GitHub Checks, PR annotations and issue lifecycle",
+      "epic": "Production readiness",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-012",
+        "QLT-019",
+        "QLT-020"
+      ],
+      "blocked_by": [],
+      "problem": "Quality results must mechanically block stale PRs and issue closure.",
+      "steps": [
+        "Publish one idempotent GitHub Check per quality run.",
+        "Attach annotations and evidence links.",
+        "Bind checks to exact head SHA.",
+        "Reject rerun/stale commit confusion.",
+        "Let Loop delivery close/merge only after accepted gate."
+      ],
+      "acceptance": [
+        "Quality extension never closes directly.",
+        "Failed/stale checks block merge and closure.",
+        "Permission failures are visible BLOCKED states."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Fork, rerun, stale SHA and insufficient-permission cases."
+      ]
+    },
+    {
+      "id": "QLT-057",
+      "title": "Provide CI-neutral CLI, exit codes and standard report formats",
+      "epic": "Production readiness",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-012",
+        "QLT-016",
+        "QLT-017",
+        "QLT-020"
+      ],
+      "blocked_by": [],
+      "problem": "The engine must work outside GitHub and integrate with any CI.",
+      "steps": [
+        "Freeze CLI commands and stable exit-code taxonomy.",
+        "Emit JSON, JUnit, SARIF, Cobertura/LCOV and Markdown.",
+        "Stream progress without corrupting machine output.",
+        "Support artifact size limits and path portability.",
+        "Publish reusable CI examples without coupling core logic."
+      ],
+      "acceptance": [
+        "Any CI can invoke plan/run/gate/report.",
+        "Formats validate against schemas.",
+        "Oversized/missing artifacts fail predictably."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Linux/macOS/Windows path and format fixtures."
+      ]
+    },
+    {
+      "id": "QLT-058",
+      "title": "Add correlated observability and historical trend comparison",
+      "epic": "Production readiness",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-010",
+        "QLT-017",
+        "QLT-040"
+      ],
+      "blocked_by": [],
+      "problem": "Operators need per-lane visibility and trends without overwriting raw evidence.",
+      "steps": [
+        "Emit structured logs, metrics and traces with Loop IDs.",
+        "Measure queue wait, execution, retries and gate latency.",
+        "Persist immutable raw samples and derived trends separately.",
+        "Redact secrets and PII.",
+        "Compare baselines by compatible environment fingerprints."
+      ],
+      "acceptance": [
+        "Every stage is correlatable end to end.",
+        "Interrupted traces remain diagnosable.",
+        "Incompatible baselines are not compared."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Redaction, missing metrics and interrupted trace cases."
+      ]
+    },
+    {
+      "id": "QLT-059",
+      "title": "Validate the complete Simplicio ecosystem integration matrix",
+      "epic": "Production readiness",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-012",
+        "QLT-019",
+        "QLT-020",
+        "QLT-042",
+        "QLT-044",
+        "QLT-045",
+        "QLT-052",
+        "QLT-057"
+      ],
+      "blocked_by": [],
+      "problem": "Quality must work with isolated and combined Simplicio components.",
+      "steps": [
+        "Test loop+quality alone.",
+        "Test runtime, mapper, dev-cli, agent and code combinations.",
+        "Test optional components absent and incompatible.",
+        "Run install/upgrade matrices from published artifacts.",
+        "Compare receipts and degraded behavior."
+      ],
+      "acceptance": [
+        "Supported combinations are explicitly green.",
+        "Optional absence never fabricates integration.",
+        "Version incompatibility fails fast."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Clean environment matrix for all declared combinations."
+      ]
+    },
+    {
+      "id": "QLT-060",
+      "title": "Create golden defect projects and self-dogfood conformance",
+      "epic": "Production readiness",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-023",
+        "QLT-024",
+        "QLT-025",
+        "QLT-026",
+        "QLT-027",
+        "QLT-028",
+        "QLT-029",
+        "QLT-030",
+        "QLT-031",
+        "QLT-032",
+        "QLT-033",
+        "QLT-034",
+        "QLT-035",
+        "QLT-036",
+        "QLT-037",
+        "QLT-038",
+        "QLT-039",
+        "QLT-040",
+        "QLT-041",
+        "QLT-042",
+        "QLT-043",
+        "QLT-044",
+        "QLT-045",
+        "QLT-046",
+        "QLT-047",
+        "QLT-048",
+        "QLT-049",
+        "QLT-050",
+        "QLT-051",
+        "QLT-052",
+        "QLT-053",
+        "QLT-054",
+        "QLT-055"
+      ],
+      "blocked_by": [],
+      "problem": "Agents need proof that they find real defects and avoid false PASS.",
+      "steps": [
+        "Create small projects with one seeded defect per agent/language.",
+        "Record expected findings and evidence.",
+        "Run the full extension against every fixture.",
+        "Run the extension against its own repository.",
+        "Track false positives, misses and runtime."
+      ],
+      "acceptance": [
+        "Every agent catches its seeded defect.",
+        "Clean fixtures do not produce false blockers.",
+        "Dogfood is required before release."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Golden corpus versioned with expected outputs."
+      ]
+    },
+    {
+      "id": "QLT-061",
+      "title": "Publish complete documentation and operational runbooks",
+      "epic": "Production readiness",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-057",
+        "QLT-059",
+        "QLT-060"
+      ],
+      "blocked_by": [],
+      "problem": "Users need reproducible setup, extension and recovery guidance.",
+      "steps": [
+        "Document architecture boundary, policies, agents and schemas.",
+        "Document CLI, CI, reports and evidence verification.",
+        "Publish adapter authoring tutorial.",
+        "Write troubleshooting, recovery, cancellation and waiver runbooks.",
+        "Validate docs from a clean environment."
+      ],
+      "acceptance": [
+        "A third party can onboard an unknown project.",
+        "All commands are tested.",
+        "No duplicated or stale canonical contract."
+      ],
+      "tests": [
+        "Documentation command audit and clean tutorial reproduction."
+      ]
+    },
+    {
+      "id": "QLT-062",
+      "title": "Build a secure, reproducible release-candidate process",
+      "epic": "Production readiness",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-039",
+        "QLT-056",
+        "QLT-059",
+        "QLT-060",
+        "QLT-061"
+      ],
+      "blocked_by": [],
+      "problem": "A quality tool must prove its own published artifacts.",
+      "steps": [
+        "Adopt one canonical version and build once.",
+        "Create reproducible wheel/sdist, checksums, SBOM and provenance.",
+        "Sign/attest artifacts with short-lived identity.",
+        "Install published artifacts in clean environments.",
+        "Run golden suite, canary, upgrade and rollback before candidate promotion."
+      ],
+      "acceptance": [
+        "Candidate bytes match tested bytes.",
+        "No static publishing secret is required where OIDC exists.",
+        "Rollback is documented and tested.",
+        "Candidate promotion remains blocked unless dogfood and ecosystem matrix pass."
+      ],
+      "tests": [
+        "Test with unit, integration, system, regression, real fixtures, >=90% changed branch coverage, and attach commit-bound evidence.",
+        "Tampered artifact, partial publish, clean install and rollback fault cases."
+      ]
+    },
+    {
+      "id": "QLT-063",
+      "title": "Implement first-party Swift quality adapters",
+      "epic": "Universal support",
+      "priority": "P2",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Swift packages and applications need platform, concurrency and XCTest-aware validation independent of C/C++ tooling.",
+      "steps": [
+        "Add SwiftPM, XCTest, coverage, lint and static-analysis adapters.",
+        "Support libraries, executables, async tests and package plugins.",
+        "Capture Swift, SDK, target, architecture and platform identity.",
+        "Test built products outside the source/build tree.",
+        "Normalize results and platform-specific N/A decisions."
+      ],
+      "acceptance": [
+        "Supported Swift package forms produce normalized evidence.",
+        "Async/concurrency and strict-concurrency failures block.",
+        "Platform exclusions require explicit approved N/A."
+      ],
+      "tests": [
+        "Library, executable, async, actor-isolation and package-plugin fixtures.",
+        "Clean artifact smoke on each supported platform cell."
+      ]
+    },
+    {
+      "id": "QLT-064",
+      "title": "Implement first-party Ruby quality adapters",
+      "epic": "Universal support",
+      "priority": "P2",
+      "depends_on": [
+        "QLT-043"
+      ],
+      "blocked_by": [],
+      "problem": "Ruby libraries, CLIs and web applications need RSpec/Minitest, coverage, mutation and Bundler-aware validation.",
+      "steps": [
+        "Add RSpec, Minitest, coverage, lint/type and mutation adapters.",
+        "Support Bundler lockfiles, gems and common Ruby web frameworks.",
+        "Model Ruby engine/version and native-extension compatibility.",
+        "Test gem and CLI artifacts without developer-global state.",
+        "Normalize test, coverage, security and static findings."
+      ],
+      "acceptance": [
+        "Framework discovery is evidence-based and deterministic.",
+        "Gem smoke uses the exact built artifact.",
+        "Missing Bundler or required analyzer never appears clean."
+      ],
+      "tests": [
+        "RSpec, Minitest, gem, CLI, Rails-style and native-extension fixtures.",
+        "Lockfile drift and developer-global dependency negative cases."
+      ]
+    },
+    {
+      "id": "QLT-065",
+      "title": "Implement infrastructure-as-code quality profile",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-038",
+        "QLT-039",
+        "QLT-043"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/620"
+      ],
+      "problem": "Terraform, OpenTofu, Pulumi and configuration plans need policy, drift, security and rollback proof without touching production.",
+      "steps": [
+        "Discover IaC engines, modules, state backends and policy tools.",
+        "Run formatting, validation, static security and plan checks through Hub.",
+        "Use disposable test accounts/emulators only when explicitly authorized.",
+        "Analyze plan changes, destructive actions, drift and secret exposure.",
+        "Verify rollback, cleanup and immutable plan digests."
+      ],
+      "acceptance": [
+        "No production apply occurs during quality validation.",
+        "Destructive or privileged plan changes follow explicit policy.",
+        "Plan, policy, state and environment identities are auditable."
+      ],
+      "tests": [
+        "Terraform/OpenTofu/Pulumi module and policy fixtures.",
+        "Seeded destructive plan, secret, drift and cleanup-failure cases."
+      ]
+    },
+    {
+      "id": "QLT-066",
+      "title": "Implement accessibility quality profile",
+      "epic": "Universal support",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-028",
+        "QLT-043",
+        "QLT-054"
+      ],
+      "blocked_by": [],
+      "problem": "Automated and interaction-level accessibility needs its own policy, evidence and manual-review boundary.",
+      "steps": [
+        "Discover applicable WCAG target, supported browsers and assistive paths.",
+        "Run semantic, keyboard, focus, contrast and accessible-name audits.",
+        "Exercise critical flows with keyboard-only interaction.",
+        "Record automated coverage limits and required manual review explicitly.",
+        "Normalize violations by rule, severity, element and user impact."
+      ],
+      "acceptance": [
+        "Critical WCAG violations block according to policy.",
+        "Automated PASS never claims full manual accessibility coverage.",
+        "Waivers identify rule, scope, expiry and independent approver."
+      ],
+      "tests": [
+        "Seeded name, contrast, focus, landmark and keyboard-trap fixtures.",
+        "False-positive, waiver-expiry and browser-parity cases."
+      ]
+    },
+    {
+      "id": "QLT-067",
+      "title": "Implement ImplementationCompletenessAgent",
+      "epic": "Advanced assurance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-013",
+        "QLT-017",
+        "QLT-023",
+        "QLT-024"
+      ],
+      "blocked_by": [],
+      "problem": "Green tests can coexist with placeholders, stubs, TODO-only paths, mocks in production and unimplemented acceptance criteria.",
+      "steps": [
+        "Trace each acceptance criterion to production behavior and evidence.",
+        "Detect placeholders, pass-through stubs, disabled branches and panic/not-implemented paths.",
+        "Distinguish legitimate abstract/test seams from incomplete production code.",
+        "Exercise every claimed entrypoint using real artifacts.",
+        "Emit blocking findings without implementing product features locally."
+      ],
+      "acceptance": [
+        "No acceptance criterion is satisfied only by a mock or placeholder.",
+        "Intentional TODOs require scoped policy and do not cover required behavior.",
+        "Findings route to Loop implementation/recovery, not a local fix loop."
+      ],
+      "tests": [
+        "Seeded stub, constant-return, TODO, disabled-feature and mock-in-production fixtures.",
+        "Legitimate abstract method and test-double false-positive cases."
+      ]
+    },
+    {
+      "id": "QLT-068",
+      "title": "Implement IndependentCodeReviewAgent",
+      "epic": "Advanced assurance",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-006",
+        "QLT-013",
+        "QLT-017",
+        "QLT-023"
+      ],
+      "blocked_by": [],
+      "problem": "Tests do not replace an independent review of correctness, architecture, maintainability and unintended behavior.",
+      "steps": [
+        "Review the exact diff plus impacted context and public contracts.",
+        "Check correctness, error handling, invariants, compatibility and maintainability.",
+        "Separate blocking defects from evidence-backed nonblocking suggestions.",
+        "Forbid author/executor self-approval and record reviewer identity.",
+        "Bind review findings and resolution evidence to the exact source SHA."
+      ],
+      "acceptance": [
+        "Reviewer identity is independent and ledger-backed.",
+        "Every blocking finding is resolved or explicitly blocks completion.",
+        "Review does not claim runtime proof it did not execute."
+      ],
+      "tests": [
+        "Seeded correctness, compatibility, error-swallowing and architecture defects.",
+        "Self-review, stale-diff and unsupported-claim negative cases."
+      ]
+    },
+    {
+      "id": "QLT-069",
+      "title": "Implement TestSelectionValidationAgent",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-013",
+        "QLT-014",
+        "QLT-024",
+        "QLT-026",
+        "QLT-029"
+      ],
+      "blocked_by": [],
+      "problem": "Incremental test selection can be fast but silently omit tests that a full suite would fail.",
+      "steps": [
+        "Record why each selected and omitted test relates to the impact map.",
+        "Compare incremental selection with scheduled full-suite reference runs.",
+        "Measure false-negative, false-positive and runtime tradeoffs.",
+        "Invalidate selection caches on graph, config or toolchain changes.",
+        "Escalate to full suite when confidence or risk falls below policy."
+      ],
+      "acceptance": [
+        "Critical changes cannot rely on unvalidated selection.",
+        "A missed failing test is a blocking selector defect.",
+        "Selection savings are reported only with full-suite comparison evidence."
+      ],
+      "tests": [
+        "Seeded indirect dependency and stale-cache false-negative fixtures.",
+        "Full-suite parity, rename/delete and monorepo boundary cases."
+      ]
+    },
+    {
+      "id": "QLT-070",
+      "title": "Implement OperationalReadinessAgent",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-006",
+        "QLT-017",
+        "QLT-022",
+        "QLT-028",
+        "QLT-058"
+      ],
+      "blocked_by": [
+        "https://github.com/wesleysimplicio/simplicio-loop/issues/620"
+      ],
+      "problem": "A project can pass functional tests yet be impossible to operate because health, logs, metrics, traces, alerts or failure messages are absent or misleading.",
+      "steps": [
+        "Discover declared health/readiness and observability contracts.",
+        "Exercise startup, degraded dependency, overload and shutdown behavior.",
+        "Verify logs, metrics and traces correlate without leaking secrets or PII.",
+        "Test alert/runbook signals and actionable error messages where declared.",
+        "Emit explicit N/A when a project has no operational surface."
+      ],
+      "acceptance": [
+        "Services prove health/readiness semantics under real failure conditions.",
+        "Critical failures are diagnosable from emitted signals.",
+        "Telemetry existence alone is not treated as correctness."
+      ],
+      "tests": [
+        "Seeded false-health, missing-correlation, secret-log and silent-failure fixtures.",
+        "Startup, dependency outage, overload, cancellation and clean-shutdown cases."
+      ]
+    },
+    {
+      "id": "QLT-071",
+      "title": "Implement PrivacyComplianceAgent",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-006",
+        "QLT-013",
+        "QLT-017",
+        "QLT-038",
+        "QLT-039"
+      ],
+      "blocked_by": [],
+      "problem": "Projects handling personal data need executable checks for minimization, consent, retention, export, deletion and data leakage.",
+      "steps": [
+        "Discover declared data classes, jurisdictions and privacy policy inputs.",
+        "Trace PII through storage, logs, telemetry, caches and third parties.",
+        "Test consent, access/export, correction, deletion and retention workflows.",
+        "Validate redaction, minimization and non-production fixture generation.",
+        "Require expert approval for legal interpretations outside executable facts."
+      ],
+      "acceptance": [
+        "No synthetic test writes real personal data to external systems.",
+        "Executable privacy promises have commit-bound evidence.",
+        "Legal uncertainty is BLOCKED/needs review, never fabricated PASS."
+      ],
+      "tests": [
+        "Seeded PII log, missing deletion, over-retention and consent-bypass fixtures.",
+        "Synthetic data, jurisdiction policy and expert-review boundary cases."
+      ]
+    },
+    {
+      "id": "QLT-072",
+      "title": "Implement DocumentationQualityAgent",
+      "epic": "Advanced assurance",
+      "priority": "P1",
+      "depends_on": [
+        "QLT-006",
+        "QLT-013",
+        "QLT-017",
+        "QLT-028",
+        "QLT-057"
+      ],
+      "blocked_by": [],
+      "problem": "Project documentation can describe commands, APIs and examples that no longer work even when code tests pass.",
+      "steps": [
+        "Discover user-facing docs, examples, snippets, links and generated references.",
+        "Execute commands and code examples in clean controlled environments.",
+        "Validate links, API symbols, versions and configuration names.",
+        "Compare generated reference docs with current public contracts.",
+        "Separate executable proof from editorial/manual review."
+      ],
+      "acceptance": [
+        "All declared executable examples are tested or explicitly scoped N/A.",
+        "Broken links, commands and stale public symbols produce findings.",
+        "Documentation tests do not mutate production services."
+      ],
+      "tests": [
+        "Seeded stale command, broken link, wrong version and invalid snippet fixtures.",
+        "Clean-room tutorial reproduction and generated-reference drift cases."
+      ]
+    },
+    {
+      "id": "QLT-073",
+      "title": "Certify the expanded universal quality layer for GA",
+      "epic": "Production readiness",
+      "priority": "P0",
+      "depends_on": [
+        "QLT-062",
+        "QLT-063",
+        "QLT-064",
+        "QLT-065",
+        "QLT-066",
+        "QLT-067",
+        "QLT-068",
+        "QLT-069",
+        "QLT-070",
+        "QLT-071",
+        "QLT-072"
+      ],
+      "blocked_by": [],
+      "problem": "The added ecosystems and assurance agents need the same golden-defect, clean-fixture and release proof as the original scope.",
+      "steps": [
+        "Add one seeded-defect and one clean fixture per newly added agent/profile.",
+        "Run the entire strict matrix through the authoritative Loop path.",
+        "Measure misses, false blockers, flakiness, runtime and resource use.",
+        "Rebuild and install the exact release candidate in clean environments.",
+        "Publish the compatibility matrix, evidence index and signed release decision."
+      ],
+      "acceptance": [
+        "Every new agent catches its seeded defect and accepts its clean control.",
+        "No lane is unmapped across policy, agent graph and manifest.",
+        "GA remains blocked without fresh Oracle-authorized end-to-end evidence."
+      ],
+      "tests": [
+        "Expanded golden corpus and full cross-profile dogfood run.",
+        "Tampered, stale, self-approved and omitted-lane release blockers."
+      ]
+    }
+  ]
+}

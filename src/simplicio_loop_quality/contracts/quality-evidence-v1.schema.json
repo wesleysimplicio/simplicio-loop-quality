@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "simplicio.quality-evidence/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "run_id", "task_id", "attempt_id", "source_sha", "diff_hash", "policy_hash", "producer_agent", "audit_agent", "generated_at", "lanes", "coverage"],
+  "properties": {
+    "schema": {"const": "simplicio.quality-evidence/v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "attempt_id": {"type": "string", "minLength": 1},
+    "source_sha": {"type": "string", "pattern": "^(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})$"},
+    "diff_hash": {"type": ["string", "null"], "pattern": "^[0-9a-fA-F]{64}$"},
+    "policy_hash": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+    "producer_agent": {"type": "string", "minLength": 1},
+    "audit_agent": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "lanes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["status"],
+        "properties": {
+          "status": {"enum": ["pass", "fail", "blocked", "not_applicable"]},
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ref",
+                "sha256",
+                "source_sha",
+                "run_id",
+                "task_id",
+                "attempt_id",
+                "process_id",
+                "tool_name",
+                "tool_version",
+                "command",
+                "exit_code",
+                "duration_ms",
+                "environment_hash"
+              ],
+              "properties": {
+                "ref": {"type": "string", "minLength": 1},
+                "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+                "source_sha": {"type": "string", "pattern": "^(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})$"},
+                "run_id": {"type": "string", "minLength": 1},
+                "task_id": {"type": "string", "minLength": 1},
+                "attempt_id": {"type": "string", "minLength": 1},
+                "process_id": {"type": "string", "minLength": 1},
+                "tool_name": {"type": "string", "minLength": 1},
+                "tool_version": {"type": "string", "minLength": 1},
+                "command": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {"type": "string", "minLength": 1}
+                },
+                "exit_code": {"const": 0},
+                "duration_ms": {"type": "number", "minimum": 0},
+                "environment_hash": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+                "seed": {"type": ["integer", "null"]}
+              }
+            }
+          },
+          "justification": {"type": "string"},
+          "approved_by": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["global_pct", "changed_pct", "critical_pct"],
+      "properties": {
+        "global_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "changed_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "critical_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "reason_code": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

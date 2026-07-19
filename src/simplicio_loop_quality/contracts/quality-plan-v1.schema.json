@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "simplicio.quality-plan/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "run_id", "repository", "source_sha", "policy_hash", "lanes", "agents"],
+  "properties": {
+    "schema": {"const": "simplicio.quality-plan/v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "repository": {"type": "string", "minLength": 1},
+    "source_sha": {"type": "string", "minLength": 7},
+    "policy_hash": {"type": "string", "minLength": 1},
+    "lanes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "agents": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

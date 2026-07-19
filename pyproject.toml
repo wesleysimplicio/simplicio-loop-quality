@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simplicio-loop-quality"
+version = "0.1.0"
+description = "Fail-closed, agent-driven testing and quality extension for simplicio-loop"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Wesley Simplicio" }]
+keywords = ["testing", "quality", "ai-agents", "orchestration", "simplicio-loop"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = [
+  "simplicio-loop>=3.38.0,<4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "pytest>=8",
+  "pytest-cov>=5",
+  "ruff>=0.6",
+]
+python = ["hypothesis>=6"]
+mutation = ["mutmut>=3"]
+benchmark = ["pytest-benchmark>=4"]
+
+[project.urls]
+Homepage = "https://github.com/wesleysimplicio/simplicio-loop-quality"
+Repository = "https://github.com/wesleysimplicio/simplicio-loop-quality"
+Issues = "https://github.com/wesleysimplicio/simplicio-loop-quality/issues"
+
+[project.scripts]
+simplicio-loop-quality = "simplicio_loop_quality.cli:main"
+simplicio-quality = "simplicio_loop_quality.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+simplicio_loop_quality = ["contracts/*.json"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+markers = [
+  "integration: crosses the simplicio-loop extension boundary",
+  "system: exercises a user-facing CLI flow",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["simplicio_loop_quality"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
