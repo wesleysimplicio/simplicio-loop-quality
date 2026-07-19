@@ -5,12 +5,23 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "simplicio-loop-quality"
 version = "0.1.0"
-description = "Fail-closed, agent-driven testing and quality extension for simplicio-loop"
+description = "simplicio-loop-quality: agent-driven, fail-closed quality gates for any repository via simplicio-loop"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Wesley Simplicio" }]
-keywords = ["testing", "quality", "ai-agents", "orchestration", "simplicio-loop"]
+keywords = [
+  "simplicio-loop-quality",
+  "simplicio-loop",
+  "testing",
+  "quality-assurance",
+  "quality-gates",
+  "test-automation",
+  "ai-agents",
+  "evidence-driven",
+  "fail-closed",
+  "software-verification",
+]
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
