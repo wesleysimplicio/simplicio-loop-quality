@@ -1,0 +1,11 @@
+{
+  "schema": "simplicio.quality-agent-conformance/v1",
+  "states": {
+    "PASS": {"requires_evidence": true, "retry_hint": false},
+    "FAIL": {"requires_evidence": false, "retry_hint": false},
+    "BLOCKED": {"requires_reason": true, "retry_hint": false},
+    "CANCELLED": {"failure_code": "AGENT_CANCELLED", "retry_hint": false},
+    "CRASH": {"normalized_status": "BLOCKED", "failure_code": "AGENT_CRASHED", "retry_hint": false}
+  },
+  "forbidden_authority": ["schedule", "retry", "hub.submit", "oracle", "terminal", "close_issue", "merge"]
+}
