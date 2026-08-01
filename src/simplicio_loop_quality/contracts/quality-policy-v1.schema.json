@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "simplicio.quality-policy/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "policy_id", "coverage", "performance", "risk", "na_requires_independent_approval", "reject_statuses", "lanes"],
+  "properties": {
+    "schema": {"const": "simplicio.quality-policy/v1"},
+    "policy_id": {"type": "string", "minLength": 1, "pattern": "^\\S(?:.*\\S)?$"},
+    "coverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["global_min_pct", "changed_min_pct", "critical_min_pct"],
+      "properties": {
+        "global_min_pct": {"type": "number", "minimum": 0, "maximum": 100},
+        "changed_min_pct": {"type": "number", "minimum": 0, "maximum": 100},
+        "critical_min_pct": {"type": "number", "minimum": 0, "maximum": 100}
+      }
+    },
+    "performance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["max_duration_ms", "max_peak_memory_mb"],
+      "properties": {
+        "max_duration_ms": {"type": "number", "exclusiveMinimum": 0},
+        "max_peak_memory_mb": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "risk": {
+      "type": "object", "additionalProperties": false,
+      "required": ["level", "mandatory_lanes"],
+      "properties": {
+        "level": {"enum": ["low", "medium", "high", "critical"]},
+        "mandatory_lanes": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^\\S(?:.*\\S)?$"}}
+      }
+    },
+    "na_requires_independent_approval": {"type": "boolean"},
+    "reject_statuses": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^\\S(?:.*\\S)?$"}},
+    "lanes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^\\S(?:.*\\S)?$"}}
+  }
+}

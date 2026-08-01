@@ -14,6 +14,18 @@ rejections or stricter thresholds, but it may not remove required lanes, lower c
 rejected status or disable independent `N/A` approval. Until Loop supports content-addressed policy
 delivery, custom policies are diagnostic-only.
 
+## Versioned policy resolution
+
+`quality-policy/v1` is closed to unknown fields and resolves, in order, the packaged strict floor,
+global overlay, project overlay and CLI overlay. Later layers may only strengthen the result:
+coverage floors increase, performance ceilings decrease, rejection sets and lanes grow, and risk
+never decreases. Escalating to `critical` must add at least one mandatory lane.
+
+Run `simplicio-loop-quality policy` with optional `--global-policy`, `--project-policy` and
+`--policy` overlays to print the resolved policy, its canonical SHA-256, and the ordered source
+digests. Invalid or ambiguous input exits nonzero before a task or gate is submitted. The gate binds
+evidence to this locally resolved hash instead of trusting a hash asserted by the receipt.
+
 ## Default coverage policy
 
 - global line/branch coverage: at least 85%;
