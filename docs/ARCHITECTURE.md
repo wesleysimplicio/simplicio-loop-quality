@@ -43,3 +43,16 @@ The extension contributes agent profiles for planning, test infrastructure, unit
 integration/contract, system/E2E, regression, real installation, property/fuzz, mutation,
 invariants, concurrency/reliability, security, performance, compatibility, evidence auditing and
 the terminal quality gate. These are roles executed by Loop; they are not local worker processes.
+
+## ADR-001: canonical execution and terminal authority
+
+Status: accepted. Quality may emit plans, requests, findings, evidence and non-terminal gate
+verdicts. It may start exactly one discovered `simplicio-loop run` process and must request a
+`--result-file`. It never interprets a raw process exit as completion: the result must be a
+`simplicio.run-outcome/v1` whose exit code matches the process. Exit zero additionally requires
+`outcome=COMPLETE` and `oracle={verdict: COMPLETE, authorized: true}`.
+
+Injected command prefixes exist only as a test seam. Production discovers the Loop module or
+installed executable, and `LoopInvoker.run` rejects a command whose prefix differs from the one
+it discovered. Missing provider registration, malformed handshakes, absent result files, schema
+mismatches and Oracle refusal are all `BLOCKED`; no local quality runner is started.

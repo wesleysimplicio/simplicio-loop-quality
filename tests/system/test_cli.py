@@ -62,9 +62,11 @@ class CliSystemTest(unittest.TestCase):
             "reason_code": "missing_quality_provider_hook",
         }
         stderr = io.StringIO()
-        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(
-            cli, "_loop_capabilities", return_value=capabilities
-        ), contextlib.redirect_stderr(stderr):
+        with (
+            tempfile.TemporaryDirectory() as tmp,
+            mock.patch.object(cli, "_loop_capabilities", return_value=capabilities),
+            contextlib.redirect_stderr(stderr),
+        ):
             code = cli.main(["run", "--repo", tmp])
         self.assertEqual(code, 3)
         self.assertIn("No unsafe local fallback", stderr.getvalue())
@@ -90,11 +92,14 @@ class CliSystemTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            with mock.patch.object(
-                cli,
-                "_loop_capabilities",
-                return_value={"ready": True, "reason_code": "ready"},
-            ), contextlib.redirect_stderr(stderr):
+            with (
+                mock.patch.object(
+                    cli,
+                    "_loop_capabilities",
+                    return_value={"ready": True, "reason_code": "ready"},
+                ),
+                contextlib.redirect_stderr(stderr),
+            ):
                 code = cli.main(["run", "--repo", tmp, "--policy", str(policy)])
         self.assertEqual(code, 2)
         self.assertIn("custom policies are diagnostic-only", stderr.getvalue())

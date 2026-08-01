@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import inspect
 import json
 import re
 import sys
@@ -62,7 +61,8 @@ def _loop_capabilities() -> dict[str, Any]:
         result["version"] = metadata.version("simplicio-loop")
     try:
         from simplicio_loop import __version__ as loop_module_version
-        from simplicio_loop import extension_manifest, oracle, runner
+        from simplicio_loop import extension_handshake as provider_handshake
+        from simplicio_loop import extension_manifest
     except ImportError:
         return result
     result["installed"] = True
@@ -73,26 +73,54 @@ def _loop_capabilities() -> dict[str, Any]:
     minimum = _version_triplet(core_requirement["min_version"])
     maximum = _version_triplet(core_requirement["max_version"])
     result["version_compatible"] = bool(
-        actual_version
-        and minimum
-        and maximum
-        and minimum <= actual_version <= maximum
+        actual_version and minimum and maximum and minimum <= actual_version <= maximum
     )
     errors = extension_manifest.validate_manifest(manifest)
     result["manifest_valid"] = not errors
     result["manifest_errors"] = errors
-    result["extension_handshake"] = callable(
-        getattr(extension_manifest, "extension_handshake", None)
+    core_handshake: dict[str, Any] = {}
+    handshake_fn = getattr(extension_manifest, "extension_handshake", None)
+    if callable(handshake_fn):
+        try:
+            candidate = handshake_fn()
+            if isinstance(candidate, dict):
+                core_handshake = candidate
+        except (OSError, RuntimeError, TypeError, ValueError):
+            pass
+    result["extension_handshake"] = (
+        core_handshake.get("schema") == "simplicio.loop-extension-handshake/v1"
     )
-    params = inspect.signature(runner.conduct_run).parameters
-    result["quality_provider_hook"] = "quality_provider" in params
-    result["completion_oracle"] = callable(
-        getattr(oracle, "evaluate_completion", None)
-    ) and bool(getattr(runner, "ORACLE_IS_TERMINAL_AUTHORITY", False))
+    result["completion_oracle"] = (
+        core_handshake.get("completion_authority") == "core-completion-oracle-only"
+    )
+    capabilities = core_handshake.get("capabilities")
     result["terminal_run_outcome"] = (
-        getattr(runner, "RUN_OUTCOME_SCHEMA", None) == "simplicio.run-outcome/v1"
-        and bool(getattr(runner, "RUN_EXIT_IS_TERMINAL", False))
+        isinstance(capabilities, list) and "run-outcome/v1" in capabilities
     )
+    try:
+        provider = provider_handshake.extension_handshake(
+            manifest["extension_id"], "strict-default"
+        )
+    except provider_handshake.ExtensionHandshakeError as exc:
+        result["provider_reason_code"] = exc.reason_code
+        result["provider_detail"] = exc.detail
+    else:
+        provider_identity = provider.get("provider")
+        result["quality_provider_hook"] = bool(
+            provider.get("schema") == "simplicio.extension-handshake/v1"
+            and provider.get("status") == "PASS"
+            and isinstance(provider_identity, dict)
+            and provider_identity.get("id") == manifest["extension_id"]
+            and provider_identity.get("policy") == "strict-default"
+        )
+        fingerprint = provider.get("runtime", {}).get("fingerprint")
+        result["runtime_fingerprint"] = fingerprint
+        result["runtime_fingerprint_valid"] = bool(
+            isinstance(fingerprint, str)
+            and fingerprint.startswith("sha256:")
+            and len(fingerprint) == 71
+            and all(character in "0123456789abcdefABCDEF" for character in fingerprint[7:])
+        )
     missing = [
         name
         for name, present in (
@@ -100,6 +128,7 @@ def _loop_capabilities() -> dict[str, Any]:
             ("core_version", result["version_compatible"]),
             ("extension_handshake", result["extension_handshake"]),
             ("quality_provider_hook", result["quality_provider_hook"]),
+            ("runtime_fingerprint", result.get("runtime_fingerprint_valid", False)),
             ("completion_oracle", result["completion_oracle"]),
             ("terminal_run_outcome", result["terminal_run_outcome"]),
         )
@@ -118,11 +147,7 @@ def _write_task(args: argparse.Namespace, policy=None) -> Path:
     else:
         run_id = f"quality-{uuid.uuid4().hex[:12]}"
         target = (
-            Path(tempfile.gettempdir())
-            / "simplicio-loop-quality"
-            / "tasks"
-            / run_id
-            / "task.md"
+            Path(tempfile.gettempdir()) / "simplicio-loop-quality" / "tasks" / run_id / "task.md"
         )
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(text, encoding="utf-8")
@@ -192,7 +217,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         max_iterations=args.max_iterations,
         quality_provider=manifest["extension_id"],
         quality_policy=policy.policy_id,
-        quality_policy_hash=policy.canonical_hash,
+        handshake_fingerprint=capabilities["runtime_fingerprint"],
     )
     completed = invoker.run(command)
     return int(completed.returncode)

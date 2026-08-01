@@ -20,9 +20,7 @@ def render_quality_task(
 ) -> str:
     repo = str(Path(repository).resolve())
     lanes = "\n".join(f"- [ ] `{lane}` has a terminal, audited result" for lane in policy.lanes)
-    agents = "\n".join(
-        f"- `{agent.role_id}`: {', '.join(agent.lanes)}" for agent in AGENTS
-    )
+    agents = "\n".join(f"- `{agent.role_id}`: {', '.join(agent.lanes)}" for agent in AGENTS)
     source = source_issue.strip()
     if source and not _SOURCE_REF_RE.fullmatch(source):
         raise ValueError("source issue must be a single safe URL or identifier")

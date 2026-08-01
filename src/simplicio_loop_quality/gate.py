@@ -44,9 +44,12 @@ class GateVerdict:
     findings: tuple[GateFinding, ...]
     source_sha: str = ""
     policy_hash: str = ""
+    authority: str = "quality-extension"
+    terminal: bool = False
 
     @property
     def ready(self) -> bool:
+        """Whether this recommendation is ready for Loop Oracle evaluation."""
         return self.status == "PASS"
 
     def to_dict(self) -> dict[str, Any]:
@@ -54,6 +57,8 @@ class GateVerdict:
             "schema": "simplicio.quality-gate-verdict/v1",
             "status": self.status,
             "ready": self.ready,
+            "authority": self.authority,
+            "terminal": self.terminal,
             "reason_code": self.reason_code,
             "source_sha": self.source_sha,
             "policy_hash": self.policy_hash,
@@ -297,7 +302,7 @@ def evaluate_receipt(
     policy: QualityPolicy,
     context: GateContext | None = None,
 ) -> GateVerdict:
-    """Recompute a terminal verdict without trusting producer status fields."""
+    """Recompute a non-terminal recommendation for the Loop Completion Oracle."""
 
     if not isinstance(receipt, Mapping):
         finding = _finding("receipt_malformed", "quality receipt must be an object")

@@ -1,3 +1,4 @@
+import contextlib
 import copy
 import tempfile
 import unittest
@@ -122,9 +123,26 @@ class GateTest(unittest.TestCase):
             external = Path(outside) / "external.json"
             external.write_text("outside", encoding="utf-8")
             link = self.artifact_root / "escape-link.json"
-            link.symlink_to(external)
+            try:
+                link.symlink_to(external)
+            except OSError as exc:
+                if getattr(exc, "winerror", None) != 1314:
+                    raise
+                original_resolve = Path.resolve
+
+                def resolve(path, *args, **kwargs):
+                    return (
+                        external.resolve()
+                        if path == link
+                        else original_resolve(path, *args, **kwargs)
+                    )
+
+                patcher = mock.patch.object(Path, "resolve", autospec=True, side_effect=resolve)
+            else:
+                patcher = contextlib.nullcontext()
             self.receipt["lanes"][lane]["evidence"][0]["ref"] = link.name
-            codes = {finding.reason_code for finding in self.evaluate().findings}
+            with patcher:
+                codes = {finding.reason_code for finding in self.evaluate().findings}
         self.assertIn("lane_evidence_ref_unsafe", codes)
 
     def test_empty_artifact_reference_is_rejected_without_resolution(self):
@@ -179,10 +197,7 @@ class GateTest(unittest.TestCase):
     def test_pass_without_evidence_fails(self):
         lane = self.policy.lanes[0]
         self.receipt["lanes"][lane]["evidence"] = []
-        codes = {
-            finding.reason_code
-            for finding in self.evaluate().findings
-        }
+        codes = {finding.reason_code for finding in self.evaluate().findings}
         self.assertIn("lane_evidence_missing", codes)
 
     def test_malformed_and_unbound_evidence_fail(self):
