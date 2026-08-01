@@ -1,0 +1,22 @@
+{
+  "schema": "simplicio.quality-adapter-conformance/v1",
+  "valid": [
+    {
+      "schema": "simplicio.quality-adapter/v1",
+      "adapter_id": "python.pytest",
+      "api_version": "1.0",
+      "capabilities": ["test.run"],
+      "output_schemas": ["simplicio.quality-stage-result/v1"],
+      "resources": {"cpu_millis": 1000, "memory_mib": 512, "timeout_seconds": 30}
+    }
+  ],
+  "incompatible": [
+    {"name": "future_api", "patch": {"api_version": "2.0"}},
+    {"name": "unknown_output", "patch": {"output_schemas": ["unknown/v1"]}}
+  ],
+  "hostile": [
+    {"name": "terminal_authority", "patch": {"capabilities": ["terminal"]}},
+    {"name": "hub_authority", "patch": {"capabilities": ["hub.submit"]}},
+    {"name": "shell_field", "patch": {"shell": true}}
+  ]
+}

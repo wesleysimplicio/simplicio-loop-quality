@@ -43,6 +43,19 @@ The terminal `simplicio.quality-matrix/v2` contract remains owned and packaged b
 Quality conformance imports the installed Loop schema and semantic validator; this repository does
 not vendor or redefine the core contract, Oracle, watcher or terminal state.
 
+## Adapter boundary
+
+Quality adapters publish a closed `simplicio.quality-adapter/v1` descriptor. Discovery validates
+all supplied descriptors before invocation and sorts them by canonical adapter id. Unknown API
+versions, capabilities, outputs, resource requests and duplicate ids fail closed. Discovery never
+scans entry points or imports plugin modules.
+
+Adapters accept immutable request data and may return sync or async structured output. They never
+execute commands, schedule work, submit to the Hub or claim Oracle/terminal authority. Command
+requests are represented only as Loop's native `ProcessSpec`; submission and execution remain
+owned by the Loop Hub. Cancellation is explicit data, crashes become `ADAPTER_CRASHED`, invalid
+outputs become `INVALID_ADAPTER_OUTPUT`, and neither condition is eligible for local retry.
+
 ## Default coverage policy
 
 - global line/branch coverage: at least 85%;

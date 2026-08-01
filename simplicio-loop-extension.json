@@ -7,7 +7,7 @@
   "requires_core": {"min_version": "3.38.0", "max_version": "3.99.99"},
   "capabilities": {
     "requires": ["simplicio.stage-agent-binding/v1", "simplicio.hub-ipc/v1", "simplicio.process-spec/v1", "simplicio.evidence-receipt/v1", "simplicio.completion-oracle-matrix/v1"],
-    "provides": ["quality.full-test-layer", "quality.specialized-agents", "quality.contracts.v1", "quality.evidence.v1", "quality.evidence.v2", "quality.fail-closed-gate"]
+    "provides": ["quality.full-test-layer", "quality.specialized-agents", "quality.adapters.v1", "quality.contracts.v1", "quality.evidence.v1", "quality.evidence.v2", "quality.fail-closed-gate"]
   },
   "context_schemas": [
     {"schema_id": "simplicio.quality-plan/v1", "version": "1.0.0", "migrations": ["simplicio.quality-contract-migration/v1"]},
