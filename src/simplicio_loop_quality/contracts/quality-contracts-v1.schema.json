@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "simplicio.quality-contracts/v1",
+  "title": "Simplicio Quality extension contracts",
+  "oneOf": [
+    {"$ref": "#/$defs/plan"},
+    {"$ref": "#/$defs/stage_request"},
+    {"$ref": "#/$defs/stage_result"},
+    {"$ref": "#/$defs/report"},
+    {"$ref": "#/$defs/finding_document"},
+    {"$ref": "#/$defs/waiver_document"},
+    {"$ref": "#/$defs/verdict"},
+    {"$ref": "#/$defs/migration_result"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_sha": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
+    "nonempty": {"type": "string", "minLength": 1, "pattern": "^\\S(?:.*\\S)?$"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "identity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["run_id", "task_id", "attempt_id", "source_sha", "tree_hash", "diff_hash", "policy_hash", "config_hash", "toolchain_hash"],
+      "properties": {
+        "run_id": {"$ref": "#/$defs/nonempty"},
+        "task_id": {"$ref": "#/$defs/nonempty"},
+        "attempt_id": {"$ref": "#/$defs/nonempty"},
+        "source_sha": {"$ref": "#/$defs/source_sha"},
+        "tree_hash": {"$ref": "#/$defs/digest"},
+        "diff_hash": {"$ref": "#/$defs/digest"},
+        "policy_hash": {"$ref": "#/$defs/digest"},
+        "config_hash": {"$ref": "#/$defs/digest"},
+        "toolchain_hash": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "toolchain": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "version", "environment_hash"],
+      "properties": {
+        "name": {"$ref": "#/$defs/nonempty"},
+        "version": {"$ref": "#/$defs/nonempty"},
+        "environment_hash": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "command": {
+      "type": "array", "minItems": 1,
+      "items": {"$ref": "#/$defs/nonempty"}
+    },
+    "metric": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "value", "unit", "samples", "source", "unavailable_reason"],
+      "properties": {
+        "name": {"$ref": "#/$defs/nonempty"},
+        "value": {"type": ["number", "null"]},
+        "unit": {"$ref": "#/$defs/nonempty"},
+        "samples": {"type": "integer", "minimum": 0},
+        "source": {"$ref": "#/$defs/nonempty"},
+        "unavailable_reason": {"type": ["string", "null"], "minLength": 1}
+      },
+      "oneOf": [
+        {
+          "properties": {"value": {"type": "number"}, "samples": {"minimum": 1}, "unavailable_reason": {"type": "null"}},
+          "required": ["value", "samples", "unavailable_reason"]
+        },
+        {
+          "properties": {"value": {"type": "null"}, "samples": {"const": 0}, "unavailable_reason": {"$ref": "#/$defs/nonempty"}},
+          "required": ["value", "samples", "unavailable_reason"]
+        }
+      ]
+    },
+    "evidence_item": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ref", "sha256", "identity", "producer_agent", "audit_agent", "toolchain", "command", "exit_code", "duration_ms", "generated_at", "seed"],
+      "properties": {
+        "ref": {"$ref": "#/$defs/nonempty"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "producer_agent": {"$ref": "#/$defs/nonempty"},
+        "audit_agent": {"$ref": "#/$defs/nonempty"},
+        "toolchain": {"$ref": "#/$defs/toolchain"},
+        "command": {"$ref": "#/$defs/command"},
+        "exit_code": {"type": "integer"},
+        "duration_ms": {"type": "number", "minimum": 0},
+        "generated_at": {"$ref": "#/$defs/timestamp"},
+        "seed": {"type": ["integer", "null"]}
+      }
+    },
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["finding_id", "identity", "lane", "severity", "reason_code", "detail", "evidence_refs"],
+      "properties": {
+        "finding_id": {"$ref": "#/$defs/nonempty"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "lane": {"$ref": "#/$defs/nonempty"},
+        "severity": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+        "reason_code": {"$ref": "#/$defs/nonempty"},
+        "detail": {"$ref": "#/$defs/nonempty"},
+        "evidence_refs": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/nonempty"}}
+      }
+    },
+    "waiver": {
+      "type": "object", "additionalProperties": false,
+      "required": ["waiver_id", "identity", "scope", "justification", "requested_by", "approved_by", "expires_at", "policy_hash"],
+      "properties": {
+        "waiver_id": {"$ref": "#/$defs/nonempty"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "scope": {"$ref": "#/$defs/nonempty"},
+        "justification": {"$ref": "#/$defs/nonempty"},
+        "requested_by": {"$ref": "#/$defs/nonempty"},
+        "approved_by": {"$ref": "#/$defs/nonempty"},
+        "expires_at": {"$ref": "#/$defs/timestamp"},
+        "policy_hash": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "lane_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "reason_code", "evidence", "metrics", "finding_ids"],
+      "properties": {
+        "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_APPLICABLE"]},
+        "reason_code": {"$ref": "#/$defs/nonempty"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence_item"}},
+        "metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}},
+        "finding_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/nonempty"}},
+        "waiver": {"$ref": "#/$defs/waiver"}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "PASS"}}}, "then": {"properties": {"evidence": {"minItems": 1}}, "not": {"required": ["waiver"]}}},
+        {"if": {"properties": {"status": {"const": "NOT_APPLICABLE"}}}, "then": {"required": ["waiver"]}}
+      ]
+    },
+    "plan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "identity", "repository", "lanes", "agents", "toolchain"],
+      "properties": {
+        "schema": {"const": "simplicio.quality-plan/v2"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "repository": {"$ref": "#/$defs/nonempty"},
+        "lanes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/nonempty"}},
+        "agents": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/nonempty"}},
+        "toolchain": {"$ref": "#/$defs/toolchain"}
+      }
+    },
+    "stage_request": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "identity", "stage_id", "lane", "agent", "command", "timeout_ms"],
+      "properties": {
+        "schema": {"const": "simplicio.quality-stage-request/v1"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "stage_id": {"$ref": "#/$defs/nonempty"},
+        "lane": {"$ref": "#/$defs/nonempty"},
+        "agent": {"$ref": "#/$defs/nonempty"},
+        "command": {"$ref": "#/$defs/command"},
+        "timeout_ms": {"type": "integer", "minimum": 1}
+      }
+    },
+    "stage_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "identity", "stage_id", "status", "started_at", "completed_at", "exit_code", "evidence", "metrics", "findings"],
+      "properties": {
+        "schema": {"const": "simplicio.quality-stage-result/v1"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "stage_id": {"$ref": "#/$defs/nonempty"},
+        "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_APPLICABLE"]},
+        "started_at": {"$ref": "#/$defs/timestamp"},
+        "completed_at": {"$ref": "#/$defs/timestamp"},
+        "exit_code": {"type": ["integer", "null"]},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence_item"}},
+        "metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}},
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+        "waiver": {"$ref": "#/$defs/waiver"}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "PASS"}}}, "then": {"properties": {"evidence": {"minItems": 1}, "exit_code": {"const": 0}}, "not": {"required": ["waiver"]}}},
+        {"if": {"properties": {"status": {"const": "NOT_APPLICABLE"}}}, "then": {"required": ["waiver"]}},
+        {"if": {"properties": {"status": {"enum": ["FAIL", "BLOCKED"]}}}, "then": {"not": {"required": ["waiver"]}}}
+      ]
+    },
+    "report": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "identity", "producer_agent", "audit_agent", "generated_at", "lanes", "findings"],
+      "properties": {
+        "schema": {"const": "simplicio.quality-evidence/v2"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "producer_agent": {"$ref": "#/$defs/nonempty"},
+        "audit_agent": {"$ref": "#/$defs/nonempty"},
+        "generated_at": {"$ref": "#/$defs/timestamp"},
+        "lanes": {"type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/nonempty"}, "additionalProperties": {"$ref": "#/$defs/lane_result"}},
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}}
+      }
+    },
+    "finding_document": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "finding"],
+      "properties": {"schema": {"const": "simplicio.quality-finding/v1"}, "finding": {"$ref": "#/$defs/finding"}}
+    },
+    "waiver_document": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "waiver"],
+      "properties": {"schema": {"const": "simplicio.quality-waiver/v1"}, "waiver": {"$ref": "#/$defs/waiver"}}
+    },
+    "verdict": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "identity", "status", "ready", "authority", "terminal", "reason_code", "findings"],
+      "properties": {
+        "schema": {"const": "simplicio.quality-gate-verdict/v2"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "status": {"enum": ["PASS", "FAIL", "BLOCKED"]},
+        "ready": {"type": "boolean"},
+        "authority": {"const": "quality-extension"},
+        "terminal": {"const": false},
+        "reason_code": {"$ref": "#/$defs/nonempty"},
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}}
+      }
+    },
+    "migration_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "source_schema", "source_hash", "status", "reason_code", "migrated"],
+      "properties": {
+        "schema": {"const": "simplicio.quality-contract-migration/v1"},
+        "source_schema": {"enum": ["simplicio.quality-plan/v1", "simplicio.quality-evidence/v1", "simplicio.quality-gate-verdict/v1"]},
+        "source_hash": {"$ref": "#/$defs/digest"},
+        "status": {"const": "BLOCKED"},
+        "reason_code": {"const": "legacy_contract_requires_reverification"},
+        "migrated": {"type": "null"}
+      }
+    }
+  }
+}
