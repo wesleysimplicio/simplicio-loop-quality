@@ -1,0 +1,7 @@
+{
+  "schema": "simplicio.quality-loop-compatibility/v1",
+  "n_minus_1": "3.38.21",
+  "n": "3.38.22",
+  "current": "3.38.22",
+  "supported_versions": ["3.38.22"]
+}
