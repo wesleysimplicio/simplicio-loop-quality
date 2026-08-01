@@ -56,6 +56,19 @@ requests are represented only as Loop's native `ProcessSpec`; submission and exe
 owned by the Loop Hub. Cancellation is explicit data, crashes become `ADAPTER_CRASHED`, invalid
 outputs become `INVALID_ADAPTER_OUTPUT`, and neither condition is eligible for local retry.
 
+## QualityAgent SDK lifecycle
+
+The SDK freezes the complete QLT-004 identity, role, stage, deterministic seed, derived
+idempotency key, deadline and cancellation state before agent planning. Planning is data-only:
+the same context and seed must yield the same canonical plan digest. The SDK performs no retry,
+process execution, scheduling, Hub submission, issue closure, merge or terminal decision.
+
+Stage requests and results are validated against the packaged closed contracts. Results with
+stale source, tree, diff, policy, configuration or toolchain bindings fail closed. Evidence
+preserves independent producer/auditor identities, and accepted nested data is detached and
+deeply immutable. Cancellation, deadline expiration and agent crashes normalize to explicit
+`CANCELLED` or `BLOCKED` outcomes with `retry_hint: false`.
+
 ## Default coverage policy
 
 - global line/branch coverage: at least 85%;
