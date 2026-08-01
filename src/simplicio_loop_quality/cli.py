@@ -20,6 +20,7 @@ from .evidence import write_json_atomic
 from .gate import GateContext, evaluate_receipt
 from .goal import render_quality_task
 from .loop_invoker import LoopInvoker, LoopUnavailable
+from .loop_negotiation import negotiate_loop
 from .policy import (
     PolicyError,
     ensure_authoritative_policy,
@@ -65,8 +66,9 @@ def _loop_capabilities() -> dict[str, Any]:
         "ready": False,
         "reason_code": "loop_unavailable",
     }
+    distribution_version = None
     with suppress(metadata.PackageNotFoundError):
-        result["version"] = metadata.version("simplicio-loop")
+        distribution_version = metadata.version("simplicio-loop")
     try:
         from simplicio_loop import __version__ as loop_module_version
         from simplicio_loop import extension_handshake as provider_handshake
@@ -74,7 +76,12 @@ def _loop_capabilities() -> dict[str, Any]:
     except ImportError:
         return result
     result["installed"] = True
-    result["version"] = result["version"] or loop_module_version
+    result["version"] = loop_module_version
+    result["module_version"] = loop_module_version
+    result["distribution_version"] = distribution_version
+    version_metadata_mismatch = bool(
+        distribution_version and distribution_version != loop_module_version
+    )
     manifest = _extension_manifest()
     core_requirement = manifest["requires_core"]
     actual_version = _version_triplet(result["version"])
@@ -105,6 +112,7 @@ def _loop_capabilities() -> dict[str, Any]:
     result["terminal_run_outcome"] = (
         isinstance(capabilities, list) and "run-outcome/v1" in capabilities
     )
+    provider: dict[str, Any] | None = None
     try:
         provider = provider_handshake.extension_handshake(
             manifest["extension_id"], "strict-default"
@@ -129,21 +137,26 @@ def _loop_capabilities() -> dict[str, Any]:
             and len(fingerprint) == 71
             and all(character in "0123456789abcdefABCDEF" for character in fingerprint[7:])
         )
-    missing = [
-        name
-        for name, present in (
-            ("manifest", result["manifest_valid"]),
-            ("core_version", result["version_compatible"]),
-            ("extension_handshake", result["extension_handshake"]),
-            ("quality_provider_hook", result["quality_provider_hook"]),
-            ("runtime_fingerprint", result.get("runtime_fingerprint_valid", False)),
-            ("completion_oracle", result["completion_oracle"]),
-            ("terminal_run_outcome", result["terminal_run_outcome"]),
+    expected_roles = {row["role_id"] for row in manifest["role_bindings"]}
+    expected_handlers = {row["effect_id"] for row in manifest["effect_handlers"]}
+    negotiation = negotiate_loop(
+        core_version=result["version"],
+        provider_handshake=provider,
+        core_handshake=core_handshake,
+        expected_roles=expected_roles,
+        expected_handlers=expected_handlers,
+    )
+    if version_metadata_mismatch:
+        negotiation["ready"] = False
+        negotiation["reason_codes"] = sorted(
+            set(negotiation["reason_codes"]) | {"CORE_VERSION_METADATA_MISMATCH"}
         )
-        if not present
-    ]
-    result["ready"] = not missing
-    result["reason_code"] = "ready" if not missing else "missing_" + "_and_".join(missing)
+        negotiation["reason_code"] = negotiation["reason_codes"][0]
+    result["negotiation"] = negotiation
+    result["capabilities"] = negotiation["capabilities"]
+    result["reason_codes"] = negotiation["reason_codes"]
+    result["ready"] = bool(result["manifest_valid"] and negotiation["ready"])
+    result["reason_code"] = "READY" if result["ready"] else negotiation["reason_code"]
     return result
 
 
