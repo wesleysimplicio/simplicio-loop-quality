@@ -48,9 +48,7 @@ class BacklogTest(unittest.TestCase):
     def test_milestones_must_cover_every_issue_exactly_once(self):
         broken = copy.deepcopy(self.payload)
         broken["milestones"][-1]["issues"] = "QLT-064..QLT-073"
-        self.assertTrue(
-            any("cover every issue" in error for error in validate_backlog(broken))
-        )
+        self.assertTrue(any("cover every issue" in error for error in validate_backlog(broken)))
 
     def test_export_is_stable_and_ready_for_idempotent_reconciliation(self):
         records = export_records(self.payload)

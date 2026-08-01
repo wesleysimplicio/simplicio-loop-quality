@@ -14,9 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BACKLOG = ROOT / "backlog" / "issues.json"
 ID_RE = re.compile(r"^QLT-([0-9]{3})$")
 REPOSITORY_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
-BLOCKER_RE = re.compile(
-    r"^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/issues/[1-9][0-9]*$"
-)
+BLOCKER_RE = re.compile(r"^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/issues/[1-9][0-9]*$")
 MILESTONE_RANGE_RE = re.compile(r"^(QLT-[0-9]{3})\.\.(QLT-[0-9]{3})$")
 ALLOWED_PRIORITIES = {"P0", "P1", "P2", "P3"}
 ALLOWED_EPICS = {
@@ -175,19 +173,19 @@ def render_issue(payload: Mapping[str, Any], issue_id: str) -> str:
 
 ## Problem
 
-{issue['problem']}
+{issue["problem"]}
 
 ## Scope and implementation steps
 
-{_bullets(issue['steps'], checklist=True)}
+{_bullets(issue["steps"], checklist=True)}
 
 ## Acceptance criteria
 
-{_bullets(issue['acceptance'], checklist=True)}
+{_bullets(issue["acceptance"], checklist=True)}
 
 ## Required tests and evidence
 
-{_bullets(issue['tests'], checklist=True)}
+{_bullets(issue["tests"], checklist=True)}
 
 ## Dependencies
 

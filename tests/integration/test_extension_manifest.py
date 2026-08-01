@@ -15,8 +15,7 @@ class ExtensionManifestTest(unittest.TestCase):
         self.assertEqual(source, packaged)
         self.assertEqual(source["domain"], "quality")
         self.assertFalse(
-            {"scheduler", "queue", "worktree_manager", "process_supervisor"}
-            & set(source)
+            {"scheduler", "queue", "worktree_manager", "process_supervisor"} & set(source)
         )
 
     def test_manifest_conforms_to_installed_loop_contract_when_available(self):
