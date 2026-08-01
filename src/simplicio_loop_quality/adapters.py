@@ -206,6 +206,8 @@ def build_process_spec(
     env: Mapping[str, str] | None = None,
     env_allowlist: Sequence[str] = (),
     timeout_seconds: float = 30.0,
+    max_output_bytes: int = 65536,
+    priority: int = 0,
     idempotency_key: str,
 ) -> ProcessSpec:
     """Build native Loop data only; this module never runs or submits it."""
@@ -227,6 +229,8 @@ def build_process_spec(
         env=dict(env or {}),
         env_allowlist=tuple(env_allowlist),
         timeout_seconds=timeout_seconds,
+        max_output_bytes=max_output_bytes,
+        priority=priority,
         idempotency_key=idempotency_key,
         shell=False,
     )

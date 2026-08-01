@@ -77,11 +77,11 @@ class LoopCapabilitiesTest(unittest.TestCase):
 
     def test_distribution_and_loaded_module_version_mismatch_blocks(self):
         with (
-            mock.patch.object(cli.metadata, "version", return_value="3.38.21"),
-            mock.patch("simplicio_loop.__version__", "3.38.22"),
+            mock.patch.object(cli.metadata, "version", return_value="3.38.26"),
+            mock.patch("simplicio_loop.__version__", "3.38.27"),
         ):
             result = cli._loop_capabilities()
         self.assertFalse(result["ready"])
-        self.assertEqual(result["module_version"], "3.38.22")
-        self.assertEqual(result["distribution_version"], "3.38.21")
+        self.assertEqual(result["module_version"], "3.38.27")
+        self.assertEqual(result["distribution_version"], "3.38.26")
         self.assertIn("CORE_VERSION_METADATA_MISMATCH", result["reason_codes"])

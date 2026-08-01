@@ -2,6 +2,7 @@ from simplicio_loop.extension_handshake import extension_handshake
 from simplicio_loop.extension_registry import ExtensionRegistry
 
 from simplicio_loop_quality.provider import provider
+import simplicio_loop_quality.provider as provider_module
 
 
 def test_provider_has_exact_callable_role_and_effect_bindings():
@@ -32,3 +33,34 @@ def test_role_binding_and_receipt_handler_are_fail_closed_and_nonterminal():
     publish = runtime.bindings["publish_quality_receipt"]
     invalid = publish({"schema": "unknown/v1"})
     assert (invalid["status"], invalid["terminal"]) == ("BLOCKED", False)
+
+
+def test_productive_provider_submits_check_through_hub_adapter(tmp_path, monkeypatch):
+    check = tmp_path / "scripts" / "check.py"
+    check.parent.mkdir()
+    check.write_text("raise SystemExit(0)\n", encoding="utf-8")
+    captured = {}
+
+    class _Receipt:
+        status = "PASS"
+        reason_code = "PROCESS_SUCCEEDED"
+        raw_evidence = {"process_result": {"returncode": 0}}
+
+    class _Adapter:
+        def submit(self, request):
+            captured["request"] = request
+            return object()
+
+        def poll(self, _submission):
+            return {"state": "completed"}
+
+        def collect(self, _submission):
+            return _Receipt()
+
+    monkeypatch.setattr(provider_module, "_hub_adapter", lambda: _Adapter())
+    result = provider_module.run(
+        run_id="run-1", tasks=[], attempt=1, repo=str(tmp_path), worktree="",
+        head="head", diff_hash="diff", policy="strict-default",
+    )
+    assert result["status"] == "PASS"
+    assert captured["request"].argv[1].endswith("scripts\\check.py") or captured["request"].argv[1].endswith("scripts/check.py")
