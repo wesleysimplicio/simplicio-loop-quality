@@ -104,8 +104,63 @@ class CliSystemTest(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("custom policies are diagnostic-only", stderr.getvalue())
 
-    def test_agents_and_manifest_are_machine_readable(self):
-        for command in ("agents", "manifest"):
+    def test_plan_applies_global_project_cli_precedence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            layers = {
+                "global.json": {"coverage": {"global_min_pct": 86}},
+                "project.json": {"coverage": {"global_min_pct": 87}},
+                "cli.json": {"coverage": {"global_min_pct": 88}},
+            }
+            for name, payload in layers.items():
+                (root / name).write_text(json.dumps(payload), encoding="utf-8")
+            task = root / "task.md"
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = cli.main(
+                    [
+                        "plan",
+                        "--repo",
+                        tmp,
+                        "--global-policy",
+                        str(root / "global.json"),
+                        "--project-policy",
+                        str(root / "project.json"),
+                        "--policy",
+                        str(root / "cli.json"),
+                        "--out",
+                        str(task),
+                    ]
+                )
+            self.assertEqual(code, 0)
+            self.assertIn(">= 88.0%", task.read_text(encoding="utf-8"))
+
+    def test_gate_rejects_weak_policy_before_evidence_evaluation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            receipt = root / "receipt.json"
+            weak = root / "weak.json"
+            receipt.write_text(json.dumps(passing_receipt(artifact_root=tmp)), encoding="utf-8")
+            weak.write_text(json.dumps({"coverage": {"global_min_pct": 1}}), encoding="utf-8")
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                code = cli.main(
+                    [
+                        "gate",
+                        "--receipt",
+                        str(receipt),
+                        "--source-sha",
+                        "a" * 40,
+                        "--artifact-root",
+                        tmp,
+                        "--policy",
+                        str(weak),
+                    ]
+                )
+            self.assertEqual(code, 2)
+            self.assertIn("cannot lower coverage.global_min_pct", stderr.getvalue())
+
+    def test_agents_manifest_and_policy_are_machine_readable(self):
+        for command in ("agents", "manifest", "policy"):
             with self.subTest(command=command):
                 stdout = io.StringIO()
                 with contextlib.redirect_stdout(stdout):

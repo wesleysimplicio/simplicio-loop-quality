@@ -2,6 +2,8 @@
   "schema": "simplicio.quality-policy/v1",
   "policy_id": "strict-default",
   "coverage": {"global_min_pct": 85.0, "changed_min_pct": 90.0, "critical_min_pct": 100.0},
+  "performance": {"max_duration_ms": 900000, "max_peak_memory_mb": 4096},
+  "risk": {"level": "high", "mandatory_lanes": ["invariants", "application_security", "evidence_audit"]},
   "na_requires_independent_approval": true,
   "reject_statuses": ["skipped", "xfail", "flaky", "not_run", "unknown"],
   "lanes": [
@@ -9,10 +11,9 @@
     "unit", "component", "integration", "contract", "system", "e2e", "accessibility",
     "regression", "smoke", "real_code", "negative_paths", "property", "fuzz", "mutation",
     "invariants", "concurrency", "fault_injection", "flaky_repeatability",
-    "test_selection_validation",
-    "application_security", "supply_chain_security", "performance", "load_stress_soak",
-    "coverage", "compatibility", "installation", "upgrade_downgrade", "migration",
-    "operational_readiness", "privacy_compliance", "documentation_quality",
-    "observability", "evidence_audit"
+    "test_selection_validation", "application_security", "supply_chain_security",
+    "performance", "load_stress_soak", "coverage", "compatibility", "installation",
+    "upgrade_downgrade", "migration", "operational_readiness", "privacy_compliance",
+    "documentation_quality", "observability", "evidence_audit"
   ]
 }
