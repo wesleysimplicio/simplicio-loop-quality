@@ -26,6 +26,23 @@ Run `simplicio-loop-quality policy` with optional `--global-policy`, `--project-
 digests. Invalid or ambiguous input exits nonzero before a task or gate is submitted. The gate binds
 evidence to this locally resolved hash instead of trusting a hash asserted by the receipt.
 
+## Canonical extension contract bundle
+
+`quality-contracts-v1.schema.json` is a self-contained Draft 2020-12 bundle for
+`quality-plan/v2`, stage request/result, `quality-evidence/v2`, finding, waiver, non-terminal gate
+verdict and fail-closed migration receipts. Every object is closed against unknown fields and every
+identity carries run, task, attempt, source, tree, diff, policy, configuration and toolchain hashes.
+
+Metrics distinguish a measured zero from an unavailable value: measured values require at least one
+sample and `unavailable_reason: null`; unavailable values require `value: null`, zero samples and a
+non-empty reason. `PASS`, `FAIL`, `BLOCKED` and `NOT_APPLICABLE` are the only lane statuses. A PASS
+requires evidence and N/A requires a waiver. Legacy v1 contracts migrate only to a deterministic
+BLOCKED receipt that requires re-verification; migration never invents PASS or missing bindings.
+
+The terminal `simplicio.quality-matrix/v2` contract remains owned and packaged by `simplicio-loop`.
+Quality conformance imports the installed Loop schema and semantic validator; this repository does
+not vendor or redefine the core contract, Oracle, watcher or terminal state.
+
 ## Default coverage policy
 
 - global line/branch coverage: at least 85%;

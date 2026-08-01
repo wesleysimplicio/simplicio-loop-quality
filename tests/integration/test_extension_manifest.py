@@ -32,6 +32,7 @@ class ExtensionManifestTest(unittest.TestCase):
             "quality-plan-v1.schema.json",
             "quality-evidence-v1.schema.json",
             "quality-gate-verdict-v1.schema.json",
+            "quality-contracts-v1.schema.json",
         }
         schema_ids = {
             json.loads(contract_dir.joinpath(name).read_text(encoding="utf-8"))["$id"]
@@ -43,5 +44,25 @@ class ExtensionManifestTest(unittest.TestCase):
                 "simplicio.quality-plan/v1",
                 "simplicio.quality-evidence/v1",
                 "simplicio.quality-gate-verdict/v1",
+                "simplicio.quality-contracts/v1",
             },
+        )
+        manifest = json.loads(contract_dir.joinpath("loop-extension.json").read_text())
+        advertised = {
+            item["schema_id"]
+            for key in ("context_schemas", "receipt_schemas")
+            for item in manifest[key]
+        }
+        self.assertTrue(
+            {
+                "simplicio.quality-plan/v2",
+                "simplicio.quality-stage-request/v1",
+                "simplicio.quality-stage-result/v1",
+                "simplicio.quality-evidence/v2",
+                "simplicio.quality-finding/v1",
+                "simplicio.quality-waiver/v1",
+                "simplicio.quality-gate-verdict/v2",
+                "simplicio.quality-contract-migration/v1",
+            }
+            <= advertised
         )

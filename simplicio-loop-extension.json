@@ -7,10 +7,12 @@
   "requires_core": {"min_version": "3.38.0", "max_version": "3.99.99"},
   "capabilities": {
     "requires": ["simplicio.stage-agent-binding/v1", "simplicio.hub-ipc/v1", "simplicio.process-spec/v1", "simplicio.evidence-receipt/v1", "simplicio.completion-oracle-matrix/v1"],
-    "provides": ["quality.full-test-layer", "quality.specialized-agents", "quality.evidence.v1", "quality.fail-closed-gate"]
+    "provides": ["quality.full-test-layer", "quality.specialized-agents", "quality.contracts.v1", "quality.evidence.v1", "quality.evidence.v2", "quality.fail-closed-gate"]
   },
   "context_schemas": [
-    {"schema_id": "simplicio.quality-plan/v1", "version": "1.0.0", "migrations": []}
+    {"schema_id": "simplicio.quality-plan/v1", "version": "1.0.0", "migrations": ["simplicio.quality-contract-migration/v1"]},
+    {"schema_id": "simplicio.quality-plan/v2", "version": "2.0.0", "migrations": []},
+    {"schema_id": "simplicio.quality-stage-request/v1", "version": "1.0.0", "migrations": []}
   ],
   "stage_overlays": [
     {"op": "refine", "hook": "planning", "order": 100, "gates": {"quality_plan": "fail_closed"}},
@@ -58,7 +60,13 @@
   ],
   "receipt_schemas": [
     {"schema_id": "simplicio.quality-evidence/v1", "version": "1.0.0"},
-    {"schema_id": "simplicio.quality-gate-verdict/v1", "version": "1.0.0"}
+    {"schema_id": "simplicio.quality-evidence/v2", "version": "2.0.0"},
+    {"schema_id": "simplicio.quality-stage-result/v1", "version": "1.0.0"},
+    {"schema_id": "simplicio.quality-finding/v1", "version": "1.0.0"},
+    {"schema_id": "simplicio.quality-waiver/v1", "version": "1.0.0"},
+    {"schema_id": "simplicio.quality-gate-verdict/v1", "version": "1.0.0"},
+    {"schema_id": "simplicio.quality-gate-verdict/v2", "version": "2.0.0"},
+    {"schema_id": "simplicio.quality-contract-migration/v1", "version": "1.0.0"}
   ],
   "feature_flags": [
     {"flag_id": "quality_required", "default": true},

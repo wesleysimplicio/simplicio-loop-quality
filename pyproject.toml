@@ -34,6 +34,7 @@ classifiers = [
 ]
 dependencies = [
   "simplicio-loop>=3.38.0,<4",
+  "jsonschema[format]>=4.23",
 ]
 
 [project.optional-dependencies]

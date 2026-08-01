@@ -1,0 +1,84 @@
+{
+  "identity": {
+    "run_id": "run-1",
+    "task_id": "task-1",
+    "attempt_id": "attempt-1",
+    "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "diff_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "policy_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "config_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "toolchain_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "evidence": {
+    "ref": "artifacts/unit.json",
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "identity": {
+      "run_id": "run-1",
+      "task_id": "task-1",
+      "attempt_id": "attempt-1",
+      "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "tree_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "diff_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "policy_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "config_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "toolchain_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "producer_agent": "unit-executor",
+    "audit_agent": "evidence-auditor",
+    "toolchain": {
+      "name": "pytest",
+      "version": "9.1.1",
+      "environment_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "command": ["python", "-m", "pytest"],
+    "exit_code": 0,
+    "duration_ms": 12.5,
+    "generated_at": "2026-08-01T00:00:00Z",
+    "seed": 7
+  },
+  "report": {
+    "schema": "simplicio.quality-evidence/v2",
+    "identity": {
+      "run_id": "run-1",
+      "task_id": "task-1",
+      "attempt_id": "attempt-1",
+      "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "tree_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "diff_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "policy_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "config_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "toolchain_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "producer_agent": "quality-producer",
+    "audit_agent": "evidence-auditor",
+    "generated_at": "2026-08-01T00:00:00Z",
+    "lanes": {
+      "unit": {
+        "status": "BLOCKED",
+        "reason_code": "fixture_baseline",
+        "evidence": [],
+        "metrics": [{"name": "failures", "value": 0, "unit": "count", "samples": 1, "source": "pytest", "unavailable_reason": null}],
+        "finding_ids": []
+      },
+      "coverage": {
+        "status": "BLOCKED",
+        "reason_code": "metric_unavailable",
+        "evidence": [],
+        "metrics": [{"name": "changed", "value": null, "unit": "percent", "samples": 0, "source": "coverage", "unavailable_reason": "tool_unavailable"}],
+        "finding_ids": []
+      }
+    },
+    "findings": []
+  },
+  "invalid_mutations": [
+    {"name": "unknown_top_level", "path": ["surprise"], "value": true},
+    {"name": "skipped_is_not_status", "path": ["lanes", "unit", "status"], "value": "SKIPPED"},
+    {"name": "pass_requires_evidence", "path": ["lanes", "unit", "status"], "value": "PASS"},
+    {"name": "null_requires_reason", "path": ["lanes", "coverage", "metrics", 0, "unavailable_reason"], "value": null},
+    {"name": "null_requires_zero_samples", "path": ["lanes", "coverage", "metrics", 0, "samples"], "value": 1},
+    {"name": "measured_requires_samples", "path": ["lanes", "unit", "metrics", 0, "samples"], "value": 0},
+    {"name": "bad_source_sha", "path": ["identity", "source_sha"], "value": "deadbeef"},
+    {"name": "na_requires_waiver", "path": ["lanes", "coverage", "status"], "value": "NOT_APPLICABLE"}
+  ]
+}
