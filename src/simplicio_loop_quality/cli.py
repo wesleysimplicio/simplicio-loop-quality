@@ -23,13 +23,21 @@ from .loop_invoker import LoopInvoker, LoopUnavailable
 from .policy import (
     PolicyError,
     ensure_authoritative_policy,
-    load_policy,
-    load_strict_policy,
+    load_policy_mapping,
+    resolve_policy,
 )
 
 
-def _policy(path: str = ""):
-    return load_policy(path) if path else load_strict_policy()
+def _resolution(global_path: str = "", project_path: str = "", cli_path: str = ""):
+    return resolve_policy(
+        global_policy=load_policy_mapping(global_path) if global_path else None,
+        project_policy=load_policy_mapping(project_path) if project_path else None,
+        cli_policy=load_policy_mapping(cli_path) if cli_path else None,
+    )
+
+
+def _policy(global_path: str = "", project_path: str = "", cli_path: str = ""):
+    return _resolution(global_path, project_path, cli_path).policy
 
 
 def _extension_manifest() -> dict[str, Any]:
@@ -140,7 +148,11 @@ def _loop_capabilities() -> dict[str, Any]:
 
 
 def _write_task(args: argparse.Namespace, policy=None) -> Path:
-    policy = policy or _policy(args.policy)
+    policy = policy or _policy(
+        getattr(args, "global_policy", ""),
+        getattr(args, "project_policy", ""),
+        getattr(args, "policy", ""),
+    )
     text = render_quality_task(args.repo, policy, source_issue=args.issue)
     if args.out:
         target = Path(args.out).resolve()
@@ -174,6 +186,12 @@ def cmd_manifest(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_policy(args: argparse.Namespace) -> int:
+    resolution = _resolution(args.global_policy, args.project_policy, args.policy)
+    print(json.dumps(resolution.to_dict(), ensure_ascii=False, indent=2))
+    return 0
+
+
 def cmd_plan(args: argparse.Namespace) -> int:
     target = _write_task(args)
     print(str(target))
@@ -200,12 +218,12 @@ def cmd_run(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 3
-    if args.policy:
+    if any((args.global_policy, args.project_policy, args.policy)):
         raise PolicyError(
             "custom policies are diagnostic-only until Loop supports content-addressed "
             "policy delivery"
         )
-    policy = _policy(args.policy)
+    policy = _policy()
     ensure_authoritative_policy(policy)
     task = _write_task(args, policy)
     manifest = _extension_manifest()
@@ -225,16 +243,17 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 def cmd_gate(args: argparse.Namespace) -> int:
     receipt = json.loads(Path(args.receipt).read_text(encoding="utf-8"))
+    policy = _policy(args.global_policy, args.project_policy, args.policy)
     context = GateContext(
         expected_run_id=str(receipt.get("run_id") or ""),
         expected_task_id=str(receipt.get("task_id") or ""),
         expected_attempt_id=str(receipt.get("attempt_id") or ""),
         expected_source_sha=args.source_sha,
         expected_diff_hash=str(receipt.get("diff_hash") or ""),
-        expected_policy_hash=str(receipt.get("policy_hash") or ""),
+        expected_policy_hash=policy.canonical_hash,
         artifact_root=Path(args.artifact_root),
     )
-    verdict = evaluate_receipt(receipt, _policy(args.policy), context)
+    verdict = evaluate_receipt(receipt, policy, context)
     payload = verdict.to_dict()
     if args.out:
         write_json_atomic(args.out, payload)
@@ -242,14 +261,16 @@ def cmd_gate(args: argparse.Namespace) -> int:
     return 0 if verdict.ready else 2
 
 
+def _add_policy_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--global-policy", default="", help="global policy JSON overlay")
+    parser.add_argument("--project-policy", default="", help="project policy JSON overlay")
+    parser.add_argument("--policy", default="", help="CLI policy JSON overlay")
+
+
 def _add_task_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--repo", required=True, help="target repository")
     parser.add_argument("--issue", default="", help="optional source issue URL or identifier")
-    parser.add_argument(
-        "--policy",
-        default="",
-        help="policy JSON; strict packaged policy by default",
-    )
+    _add_policy_arguments(parser)
     parser.add_argument("--out", default="", help="task/output path")
 
 
@@ -270,6 +291,10 @@ def build_parser() -> argparse.ArgumentParser:
     manifest = sub.add_parser("manifest", help="print the loop-extension manifest")
     manifest.set_defaults(func=cmd_manifest)
 
+    policy = sub.add_parser("policy", help="resolve and audit policy precedence")
+    _add_policy_arguments(policy)
+    policy.set_defaults(func=cmd_policy)
+
     plan = sub.add_parser("plan", help="render the strict quality task")
     _add_task_arguments(plan)
     plan.set_defaults(func=cmd_plan)
@@ -288,7 +313,7 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="trusted Loop artifact directory used to rehash every evidence item",
     )
-    gate.add_argument("--policy", default="")
+    _add_policy_arguments(gate)
     gate.add_argument("--out", default="")
     gate.set_defaults(func=cmd_gate)
     return parser
