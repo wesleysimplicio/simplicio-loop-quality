@@ -9,6 +9,7 @@
 - Add deterministic quality-adapter discovery, native ProcessSpec data construction and hostile-plugin conformance guards.
 - Add the deterministic QualityAgent SDK lifecycle, evidence emitter and shared conformance contract.
 - Register the productive Loop extension runtime and add strict atomic capability/version negotiation.
+- Add the centralized Hub test-process adapter with fail-closed lifecycle receipts.
 - Add CLI planning/delegation boundary and upstream capability doctor.
 - Add the canonical 73-issue implementation backlog and idempotent GitHub export plan.
 - Bind CLI delegation to Loop's public provider handshake and Oracle-authorized run outcome.

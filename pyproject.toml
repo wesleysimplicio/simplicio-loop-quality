@@ -33,7 +33,7 @@ classifiers = [
   "Topic :: Software Development :: Testing",
 ]
 dependencies = [
-  "simplicio-loop>=3.38.22,<4",
+  "simplicio-loop>=3.38.27,<4",
   "jsonschema[format]>=4.23",
 ]
 

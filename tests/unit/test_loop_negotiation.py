@@ -25,7 +25,7 @@ def native_handshakes():
     return provider_value, core_value, roles, handlers
 
 
-@pytest.mark.parametrize("version", ["3.38.22"])
+@pytest.mark.parametrize("version", ["3.38.27"])
 def test_n_and_current_are_supported(version):
     handshake, core, roles, handlers = native_handshakes()
     report = negotiate_loop(
@@ -43,7 +43,7 @@ def test_n_and_current_are_supported(version):
 def test_n_minus_1_fixture_is_explicitly_blocked():
     handshake, core, roles, handlers = native_handshakes()
     report = negotiate_loop(
-        core_version="3.38.21",
+        core_version="3.38.26",
         provider_handshake=handshake,
         core_handshake=core,
         expected_roles=roles,
@@ -57,7 +57,7 @@ def test_n_minus_1_fixture_is_explicitly_blocked():
     ("version", "reason"),
     [
         ("3.38.19", "CORE_VERSION_UNSUPPORTED"),
-        ("3.38.23", "CORE_VERSION_FUTURE_UNKNOWN"),
+        ("3.38.28", "CORE_VERSION_FUTURE_UNKNOWN"),
         ("4.0.0", "CORE_VERSION_FUTURE_UNKNOWN"),
         (None, "CORE_VERSION_UNAVAILABLE"),
     ],
@@ -95,7 +95,7 @@ def test_partially_capable_loop_reports_atomic_reason(mutation, reason):
     candidate = copy.deepcopy(handshake)
     mutation(candidate)
     report = negotiate_loop(
-        core_version="3.38.22",
+        core_version="3.38.27",
         provider_handshake=candidate,
         core_handshake=core,
         expected_roles=roles,
@@ -109,7 +109,7 @@ def test_partially_capable_loop_reports_atomic_reason(mutation, reason):
 def test_unregistered_provider_and_malformed_core_fail_closed():
     _, _, roles, handlers = native_handshakes()
     report = negotiate_loop(
-        core_version="3.38.22",
+        core_version="3.38.27",
         provider_handshake=None,
         core_handshake={},
         expected_roles=roles,

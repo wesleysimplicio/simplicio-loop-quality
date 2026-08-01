@@ -4,7 +4,7 @@
   "name": "simplicio-loop-quality",
   "version": "0.1.0",
   "domain": "quality",
-  "requires_core": {"min_version": "3.38.22", "max_version": "3.99.99"},
+  "requires_core": {"min_version": "3.38.27", "max_version": "3.99.99"},
   "capabilities": {
     "requires": ["simplicio.stage-agent-binding/v1", "simplicio.hub-ipc/v1", "simplicio.process-spec/v1", "simplicio.evidence-receipt/v1", "simplicio.completion-oracle-matrix/v1"],
     "provides": ["hub_bridge", "oracle_delegation", "process_supervision", "receipt_invalidation", "run_outcome", "stage_composition", "quality.full-test-layer", "quality.specialized-agents", "quality.adapters.v1", "quality.agent-sdk.v1", "quality.contracts.v1", "quality.evidence.v1", "quality.evidence.v2", "quality.fail-closed-gate"]
