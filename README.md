@@ -1,5 +1,9 @@
 # 🛡️ Simplicio-loop-quality — Verified quality for any repository
 
+> **Not a product.** Blocked until Loop exposes public quality hooks.
+> Do not treat this repo as a sixth Simplicio module or a second scheduler.
+> See wesleysimplicio/simplicio-runtime#4213 and `docs/QUALITY_EXTENSION.md` on Runtime.
+
 <p align="center">
   <img src="docs/assets/quality-loop-hero.webp" alt="Luminous verification loop representing Simplicio-loop-quality" width="920" />
 </p>
@@ -181,3 +185,4 @@ evidence gate.
 ## License
 
 MIT
+
