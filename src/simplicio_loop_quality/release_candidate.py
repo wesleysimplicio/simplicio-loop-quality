@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 SCHEMA = "simplicio.quality-release-candidate/v1"
 REQUIRED_CHECKS = (
@@ -44,7 +45,11 @@ def evaluate_release_candidate(candidate: Mapping[str, Any]) -> dict[str, Any]:
         elif value is not True:
             reasons.append(f"{name.upper()}_FAILED")
     if reasons:
-        status = "BLOCKED" if any(reason.endswith("_MISSING") or reason.endswith("_UNAVAILABLE") for reason in reasons) else "FAIL"
+        unavailable = any(
+            reason.endswith("_MISSING") or reason.endswith("_UNAVAILABLE")
+            for reason in reasons
+        )
+        status = "BLOCKED" if unavailable else "FAIL"
     else:
         status = "PASS"
     return {

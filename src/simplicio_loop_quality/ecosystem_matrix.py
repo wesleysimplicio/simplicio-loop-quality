@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from itertools import combinations
-from typing import Any, Mapping
+from typing import Any
 
 SCHEMA = "simplicio.quality-ecosystem-matrix/v1"
 CORE = ("loop", "quality")

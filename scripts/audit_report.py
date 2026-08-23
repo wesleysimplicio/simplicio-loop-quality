@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 SCHEMA = "simplicio.quality-issue-audit/v1"
 DECISIONS = {"IMPLEMENTED", "BLOCKED", "SPEC", "NEEDS-IMPLEMENTATION"}

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 SCHEMA = "simplicio.quality-evo-benchmark/v1"
 SCENARIOS = (
