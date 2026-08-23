@@ -10,7 +10,8 @@
     {"$ref": "#/$defs/finding_document"},
     {"$ref": "#/$defs/waiver_document"},
     {"$ref": "#/$defs/verdict"},
-    {"$ref": "#/$defs/migration_result"}
+    {"$ref": "#/$defs/migration_result"},
+    {"$ref": "#/$defs/evidence_manifest"}
   ],
   "$defs": {
     "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -82,6 +83,55 @@
         "duration_ms": {"type": "number", "minimum": 0},
         "generated_at": {"$ref": "#/$defs/timestamp"},
         "seed": {"type": ["integer", "null"]}
+      }
+    },
+    "evidence_retention": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "retain_until"],
+      "properties": {
+        "mode": {"enum": ["required", "manifest_only"]},
+        "retain_until": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "evidence_provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_sha", "policy_hash", "tool_name", "tool_version", "command", "environment_hash", "seed"],
+      "properties": {
+        "source_sha": {"$ref": "#/$defs/source_sha"},
+        "policy_hash": {"$ref": "#/$defs/digest"},
+        "tool_name": {"$ref": "#/$defs/nonempty"},
+        "tool_version": {"$ref": "#/$defs/nonempty"},
+        "command": {"$ref": "#/$defs/command"},
+        "environment_hash": {"$ref": "#/$defs/digest"},
+        "seed": {"type": ["integer", "null"]},
+        "metadata": {"type": "object"}
+      }
+    },
+    "evidence_artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ref", "sha256", "size", "provenance"],
+      "properties": {
+        "ref": {"$ref": "#/$defs/nonempty"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0},
+        "provenance": {
+          "type": "array", "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidence_provenance"}
+        }
+      }
+    },
+    "evidence_manifest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "manifest_id", "artifacts", "retention"],
+      "properties": {
+        "schema": {"const": "simplicio.quality-evidence-manifest/v1"},
+        "manifest_id": {"$ref": "#/$defs/digest"},
+        "artifacts": {
+          "type": "array", "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidence_artifact"}
+        },
+        "retention": {"$ref": "#/$defs/evidence_retention"}
       }
     },
     "finding": {

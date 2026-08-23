@@ -1,0 +1,26 @@
+{
+  "schema": "simplicio.quality-evidence-manifest/v1",
+  "manifest_id": "34ef30e4c8aefbc8508cfb5f8c48348a767ddcaaf94bf2d04449ea28bb14c099",
+  "artifacts": [
+    {
+      "ref": "objects/sha256/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+      "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+      "size": 5,
+      "provenance": [
+        {
+          "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "policy_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "tool_name": "pytest",
+          "tool_version": "8",
+          "command": ["pytest", "-q"],
+          "environment_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "seed": 7
+        }
+      ]
+    }
+  ],
+  "retention": {
+    "mode": "required",
+    "retain_until": null
+  }
+}

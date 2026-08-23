@@ -6,9 +6,12 @@ import json
 from collections.abc import Mapping
 from datetime import datetime, timezone
 from importlib import resources
+from pathlib import PurePosixPath
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
+
+from .evidence import MANIFEST_SCHEMA, evidence_hash
 
 
 class ContractSemanticError(ValueError):
@@ -122,18 +125,18 @@ def validate_contract_semantics(document: Any, *, now: datetime | None = None) -
 
     elif schema == "simplicio.quality-stage-result/v1":
         evidence = document.get("evidence", [])
-        evidence_refs: set[str] = set()
+        stage_evidence_refs: set[str] = set()
         for index, item in enumerate(evidence if isinstance(evidence, list) else []):
             _check_bound_item(item, identity, f"$.evidence[{index}]", errors)
             if isinstance(item, Mapping):
-                evidence_refs.add(str(item.get("ref")))
+                stage_evidence_refs.add(str(item.get("ref")))
                 if item.get("producer_agent") == item.get("audit_agent"):
                     errors.append(f"$.evidence[{index}]: auditor must be independent")
         for index, finding in enumerate(document.get("findings", [])):
             _check_bound_item(finding, identity, f"$.findings[{index}]", errors)
             if isinstance(finding, Mapping):
                 for ref in finding.get("evidence_refs", []):
-                    if ref not in evidence_refs:
+                    if ref not in stage_evidence_refs:
                         errors.append(f"$.findings[{index}].evidence_refs: unknown evidence {ref}")
         if document.get("status") == "PASS":
             if not evidence:
@@ -171,6 +174,38 @@ def validate_contract_semantics(document: Any, *, now: datetime | None = None) -
             errors.append("$.ready: PASS requires true")
         if document.get("status") != "PASS" and document.get("ready"):
             errors.append("$.ready: non-PASS verdict cannot be ready")
+    elif schema == MANIFEST_SCHEMA:
+        payload = {key: value for key, value in document.items() if key != "manifest_id"}
+        if evidence_hash(payload) != document.get("manifest_id"):
+            errors.append("$.manifest_id: does not match canonical manifest content")
+        seen_digests: set[str] = set()
+        previous_digest = ""
+        artifacts = document.get("artifacts", [])
+        for index, artifact in enumerate(artifacts if isinstance(artifacts, list) else []):
+            if not isinstance(artifact, Mapping):
+                continue
+            digest = str(artifact.get("sha256", ""))
+            path = f"$.artifacts[{index}]"
+            if digest in seen_digests:
+                errors.append(f"{path}.sha256: duplicate content address")
+            seen_digests.add(digest)
+            if previous_digest and digest < previous_digest:
+                errors.append(f"{path}.sha256: artifacts must be sorted by digest")
+            previous_digest = digest
+            ref = str(artifact.get("ref", ""))
+            ref_path = PurePosixPath(ref)
+            if ref_path.is_absolute() or ".." in ref_path.parts:
+                errors.append(f"{path}.ref: unsafe artifact reference")
+            provenance = artifact.get("provenance", [])
+            if isinstance(provenance, list):
+                previous_provenance = b""
+                for provenance_index, item in enumerate(provenance):
+                    encoded = evidence_hash(item) if isinstance(item, Mapping) else ""
+                    if previous_provenance and encoded.encode() < previous_provenance:
+                        errors.append(
+                            f"{path}.provenance[{provenance_index}]: provenance must be sorted"
+                        )
+                    previous_provenance = encoded.encode()
     return errors
 
 
