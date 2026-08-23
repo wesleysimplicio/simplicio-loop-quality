@@ -3,5 +3,5 @@
   "n_minus_1": "3.38.26",
   "n": "3.38.27",
   "current": "3.38.27",
-  "supported_versions": ["3.38.27"]
+  "supported_versions": ["3.38.27", "3.43.1"]
 }
