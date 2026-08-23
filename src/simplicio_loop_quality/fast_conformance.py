@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from itertools import product
-from typing import Any, Mapping
+from typing import Any
 
 SCHEMA = "simplicio.quality-fast-conformance/v1"
 ENGINES = ("off", "python", "rust")

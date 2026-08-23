@@ -73,6 +73,7 @@ simplicio_loop_quality = ["contracts/*.json"]
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers"
 testpaths = ["tests"]
+norecursedirs = ["fixtures"]
 markers = [
   "integration: crosses the simplicio-loop extension boundary",
   "system: exercises a user-facing CLI flow",

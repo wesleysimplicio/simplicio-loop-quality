@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 SCHEMA = "simplicio.quality-ga-certification/v1"
 LANES = (
@@ -56,10 +57,7 @@ def evaluate_ga_results(
     missing = sorted(set(expected_cases) - seen)
     if missing:
         reasons.append("GA_CASE_MISSING")
-    if reasons:
-        status = "BLOCKED" if "EVIDENCE_MISSING" in reasons else "FAIL"
-    else:
-        status = "PASS"
+    status = ("BLOCKED" if "EVIDENCE_MISSING" in reasons else "FAIL") if reasons else "PASS"
     return {
         "schema": SCHEMA,
         "status": status,

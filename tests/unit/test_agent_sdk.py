@@ -249,7 +249,7 @@ def test_invalid_stale_hostile_and_nondeterministic_plans_block():
 def test_emitter_accepts_contract_valid_commit_and_policy_bound_results(status):
     ctx = context()
     result = stage_result(ctx, status)
-    outcome = EvidenceEmitter(ctx).emit(result)
+    outcome = EvidenceEmitter(ctx).emit(result, now=NOW)
     assert outcome.status == status
     assert outcome.failure_code is None
     result["identity"]["run_id"] = "mutated-after-emit"
@@ -276,7 +276,7 @@ def test_emitter_rejects_stale_self_approval_invalid_and_authority_results():
         ({"not_json": {object()}}, "INVALID_AGENT_RESULT"),
         ([], "INVALID_AGENT_RESULT"),
     ]:
-        outcome = emit_result(ctx, value)
+        outcome = emit_result(ctx, value, now=NOW)
         assert (outcome.status, outcome.failure_code, outcome.retry_hint) == (
             "BLOCKED",
             code,
