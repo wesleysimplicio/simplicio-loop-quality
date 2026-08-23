@@ -25,7 +25,7 @@ def native_handshakes():
     return provider_value, core_value, roles, handlers
 
 
-@pytest.mark.parametrize("version", ["3.38.27"])
+@pytest.mark.parametrize("version", ["3.38.27", "3.43.1"])
 def test_n_and_current_are_supported(version):
     handshake, core, roles, handlers = native_handshakes()
     report = negotiate_loop(
@@ -57,7 +57,8 @@ def test_n_minus_1_fixture_is_explicitly_blocked():
     ("version", "reason"),
     [
         ("3.38.19", "CORE_VERSION_UNSUPPORTED"),
-        ("3.38.28", "CORE_VERSION_FUTURE_UNKNOWN"),
+        ("3.38.28", "CORE_VERSION_UNSUPPORTED"),
+        ("3.43.2", "CORE_VERSION_FUTURE_UNKNOWN"),
         ("4.0.0", "CORE_VERSION_FUTURE_UNKNOWN"),
         (None, "CORE_VERSION_UNAVAILABLE"),
     ],
