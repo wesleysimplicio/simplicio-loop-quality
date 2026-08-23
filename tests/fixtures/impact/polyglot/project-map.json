@@ -1,0 +1,16 @@
+{
+  "schema": "simplicio.project-map/v1",
+  "version": 1,
+  "generated_at": "2026-08-23T10:00:00Z",
+  "product": {"name": "fixture-workspace", "stack": "polyglot", "project_mode": "monorepo"},
+  "files": [
+    {"path": "packages/web/src/index.ts", "language": "TypeScript", "roles": ["entrypoint"], "imports": ["./helper"], "exports": ["helper"]},
+    {"path": "packages/web/src/helper.ts", "language": "TypeScript", "roles": ["module"], "imports": [], "exports": ["helper"]},
+    {"path": "packages/web/src/api.generated.ts", "language": "TypeScript", "roles": ["generated"], "imports": [], "exports": []},
+    {"path": "services/api/src/api/app.py", "language": "Python", "roles": ["module"], "imports": ["."], "exports": ["serve"]}
+  ],
+  "modules": [
+    {"name": "web", "root": "packages/web", "files": ["packages/web/src/index.ts"]},
+    {"name": "api", "root": "services/api", "files": ["services/api/src/api/app.py"]}
+  ]
+}
