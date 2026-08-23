@@ -1,0 +1,5 @@
+{
+  "name": "fixture-web",
+  "exports": "./src/index.ts",
+  "scripts": {"test": "vitest"}
+}
