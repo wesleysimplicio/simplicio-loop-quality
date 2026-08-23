@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — 2026-08-23
+
+- Expand the fail-closed quality lanes for accessibility, privacy, documentation, operational readiness and selective test execution.
+- Add ecosystem compatibility, Fast conformance, EVO benchmarking, ASOLARIA quorum, release-candidate and GA certification contracts.
+- Keep the provider handshake compatible with `simplicio-loop` 3.43.1 and preserve deterministic CLI/package smoke paths.
+- Publish as a patch release while external Hub evidence and the remaining quality backlog stay explicitly tracked.
+
 ## 0.1.0 — unreleased
 
 - Bootstrap the `simplicio.loop-extension/v1` quality provider.
