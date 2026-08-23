@@ -76,6 +76,7 @@ _BLOCKED_REASON_CODES = {
     "lane_blocked",
     "coverage_unmeasured",
     "verification_context_untrusted",
+    "acceptance_traceability_blocked",
 }
 
 
@@ -301,6 +302,9 @@ def evaluate_receipt(
     receipt: Any,
     policy: QualityPolicy,
     context: GateContext | None = None,
+    *,
+    traceability: Any = None,
+    require_traceability: bool = False,
 ) -> GateVerdict:
     """Recompute a non-terminal recommendation for the Loop Completion Oracle."""
 
@@ -471,6 +475,49 @@ def evaluate_receipt(
             )
 
     findings.extend(_coverage_findings(receipt, policy))
+
+    traceability_source = traceability
+    if traceability_source is None and isinstance(receipt, Mapping):
+        traceability_source = receipt.get("acceptance_traceability") or receipt.get("traceability")
+    if traceability_source is None:
+        if require_traceability:
+            findings.append(
+                _finding(
+                    "acceptance_traceability_missing",
+                    "required acceptance-criteria traceability was not supplied",
+                    "acceptance_traceability",
+                )
+            )
+    else:
+        from .traceability import evaluate_traceability
+
+        traceability_verdict = evaluate_traceability(
+            traceability_source,
+            expected_identity={
+                "run_id": receipt.get("run_id"),
+                "task_id": receipt.get("task_id"),
+                "attempt_id": receipt.get("attempt_id"),
+                "source_sha": source_sha,
+                "diff_hash": diff_hash,
+                "policy_hash": policy_hash,
+            },
+        )
+        if traceability_verdict.status == "BLOCKED":
+            findings.append(
+                _finding(
+                    "acceptance_traceability_blocked",
+                    "acceptance-criteria traceability is ambiguous or not safely bound",
+                    "acceptance_traceability",
+                )
+            )
+        findings.extend(
+            _finding(
+                f"acceptance_traceability_{item.reason_code}",
+                item.detail,
+                "acceptance_traceability",
+            )
+            for item in traceability_verdict.findings
+        )
     if not context.trusted_by_loop:
         findings.append(
             _finding(
